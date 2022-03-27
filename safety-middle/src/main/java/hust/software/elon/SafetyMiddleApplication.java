@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AudioMiddleApplication {
+public class SafetyMiddleApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AudioMiddleApplication.class, args);
+		SpringApplication.run(SafetyMiddleApplication.class, args);
 	}
 
 }

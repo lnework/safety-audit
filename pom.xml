@@ -6,7 +6,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>safety-common</module>
-        <module>audio-middle</module>
+        <module>safety-middle</module>
+        <module>safety-admin</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

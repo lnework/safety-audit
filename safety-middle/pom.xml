@@ -8,10 +8,10 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>audio-middle</artifactId>
+	<artifactId>safety-middle</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>audio-middle</name>
-	<description>Audio Middle</description>
+	<name>safety-middle</name>
+	<description>Safety Middle</description>
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
