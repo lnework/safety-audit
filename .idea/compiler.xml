@@ -7,8 +7,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="safety-middle" />
         <module name="safety-common" />
+        <module name="safety-middle" />
+        <module name="safety-api" />
         <module name="safety-admin" />
       </profile>
     </annotationProcessing>
@@ -20,6 +21,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="audio-middle" options="-parameters" />
       <module name="safety-admin" options="-parameters" />
+      <module name="safety-api" options="-parameters" />
       <module name="safety-common" options="-parameters" />
       <module name="safety-middle" options="-parameters" />
     </option>
