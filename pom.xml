@@ -81,10 +81,10 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--            </plugin>-->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
@@ -112,7 +112,7 @@
                 <executions>
                     <execution>
                         <id>mybatis generator</id>
-                        <phase>package</phase>
+                        <!--						<phase>package</phase>-->
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -124,7 +124,7 @@
                     <!--            允许自动覆盖，实际开发不能设置true
                                    设置未true则会覆盖掉之前的文件
                     -->
-                    <overwrite>false</overwrite>
+                    <overwrite>true</overwrite>
                     <configurationFile>
                         src/main/resources/mybatis-generator.xml
                     </configurationFile>

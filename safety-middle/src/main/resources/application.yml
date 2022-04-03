@@ -38,3 +38,17 @@ thrift:
     port: 40000
   connectionTimeout: 3000
   sessionTimeout: 3000
+
+file:
+  #  文件大小 /M
+  fileSize: 500
+  #  头像大小 /M
+  iconSize: 10
+  mac-root: ~/safety_audit/
+  linux-root: /home/safety_audit/
+  win-root: C:/safety_audit/
+  user-icon: user_icon/
+  audio: audio/
+  other: other/
+
+

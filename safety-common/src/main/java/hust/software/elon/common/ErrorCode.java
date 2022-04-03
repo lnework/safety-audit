@@ -13,12 +13,25 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 @ToString
 public enum ErrorCode {
-//    No provider available for remote service
+    /**
+     * 三位数 系统异常
+     * 1 thrift rpc调用异常
+     */
     THRIFT_NO_REMOTE_SERVICE(101, HttpStatus.INTERNAL_SERVER_ERROR, "无可用的远程服务"),
-//    register service address to zookeeper exception
     THRIFT_NOT_REGISTER_SERVICE_ADDRESS(102, HttpStatus.INTERNAL_SERVER_ERROR, "zookeeper注册服务地址异常"),
-//    cant find server ip
     THRIFT_NOT_FIND_SERVER_IP(103, HttpStatus.INTERNAL_SERVER_ERROR, "无法找到服务IP"),
+
+    /**
+     * 四位数 业务异常
+     * 11 用户
+     * 12 权限
+     * 21 文件
+     */
+
+    File_NOT_SAVE_DISK(2001, HttpStatus.INTERNAL_SERVER_ERROR, "文件存储失败"),
+    File_NOT_SAVE(2002, HttpStatus.BAD_REQUEST, "上传文件失败"),
+
+
     RESOURCE_NOT_FOUND(1001, HttpStatus.NOT_FOUND, "未找到该资源"),
     REQUEST_VALIDATION_FAILED(1002, HttpStatus.BAD_REQUEST, "请求数据格式验证失败"),
     USER_PASSWORD_ERROR(2002, HttpStatus.BAD_REQUEST, "用户名或密码错误"),

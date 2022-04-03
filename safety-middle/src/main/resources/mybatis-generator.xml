@@ -15,7 +15,7 @@
         </commentGenerator>  -->
 
         <!--数据库链接URL，用户名、密码 本地数据库版本不一致，生成文件时会报错-->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
                         connectionURL="jdbc:mysql://106.14.206.105:3306/safety_audit?useSSL=false" userId="elon"
                         password="Elon.12345">
         </jdbcConnection>
@@ -98,10 +98,15 @@
                enableUpdateByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" selectByExampleQueryId="false"></table>
                -->
-        <table tableName="test_table" domainObjectName="TestTable" enableCountByExample="false"
+<!--        <table tableName="sys_file" domainObjectName="SysFile" enableCountByExample="false"-->
+<!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
+<!--               enableSelectByExample="false" selectByExampleQueryId="false" />-->
+<!--        <table tableName="sys_user" domainObjectName="SysUser" enableCountByExample="false"-->
+<!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
+<!--               enableSelectByExample="false" selectByExampleQueryId="false" />-->
+        <table tableName="audio_info" domainObjectName="AudioInfo" enableCountByExample="false"
                enableUpdateByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" selectByExampleQueryId="false"></table>
-
+               enableSelectByExample="false" selectByExampleQueryId="false" />
     </context>
 </generatorConfiguration>
 

@@ -9,9 +9,10 @@
 	</parent>
 
 	<artifactId>safety-middle</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+
 	<name>safety-middle</name>
 	<description>Safety Middle</description>
+
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
