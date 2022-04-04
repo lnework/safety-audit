@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AudioRequest {
+    private Long id;
+    private Long audioNumber;
     private String name;
     private Long fileId;
 }

@@ -8,17 +8,17 @@ import hust.software.elon.dto.AudioDto;
  */
 public interface AudioService {
 
-    AudioDto createAudio(String name, Long fileId);
+    AudioDto createAudio(String name, Long fileId, Long userId);
 
-    AudioDto findAudioById(Long audioNumber);
+    AudioDto findAudioByNumber(Long audioNumber);
 
-    AudioDto deleteAudio(Long audioNumber);
+    Boolean deleteAudio(Long audioNumber, Long userId);
 
-    AudioDto updateAudio(Long audioNumber, String name);
+    Boolean updateAudio(Long audioNumber, String name, Long fileId, Long userId);
 
-    AudioDto addViewCount(Long id, int viewCount);
+    Boolean addViewCount(Long id, int viewCount);
 
-    AudioDto addUseCount(Long id, int useCount);
+    Boolean addUseCount(Long id, int useCount);
 
 //    AudioDto changeSafety(Long id);
 
