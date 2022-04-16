@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="safety-common" />
+        <module name="safety-pipeline" />
         <module name="safety-middle" />
         <module name="safety-api" />
         <module name="safety-admin" />
@@ -24,6 +25,7 @@
       <module name="safety-api" options="-parameters" />
       <module name="safety-common" options="-parameters" />
       <module name="safety-middle" options="-parameters" />
+      <module name="safety-pipeline" options="-parameters" />
     </option>
   </component>
 </project>

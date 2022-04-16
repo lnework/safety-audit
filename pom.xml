@@ -9,6 +9,7 @@
         <module>safety-middle</module>
         <module>safety-admin</module>
         <module>safety-api</module>
+        <module>safety-pipeline</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -58,6 +59,12 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+        <!--Spring boot Redis-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
         <dependency>
