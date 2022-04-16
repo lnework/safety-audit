@@ -25,15 +25,15 @@ struct AudioQueryModelRequest{
 //	阈值
 	3: double threshold,
 //	模型token
-	4:string token
+	4: string token
 }
 
 struct SeedAudioRequest{
 	1: required i64 id,
 //	模型类型
-	2:RiskType riskType,
+	2: RiskType riskType,
 //	模型token
-	3:string token
+	3: string token
 }
 
 struct SeedAudioResponse{
