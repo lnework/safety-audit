@@ -1,0 +1,77 @@
+!hust.software.elon.dto.SafetyAuditConfigDto
+id: 1111111111
+configKey: test_configkey
+fatalQueueId: 2222222222
+qps: 1024
+riskModelConfigDtoList: !java.util.Arrays$ArrayList
+- !hust.software.elon.dto.RiskModelConfigDto
+   id: 123
+   autoPunishThreshold: 70.0
+   finish: false
+   level: 1
+   modelKey: model_a
+   outputName: model_a_output_name
+   riskScore: 30.0
+   submitQueueThreshold: 50.0
+   tags: !java.util.Arrays$ArrayList
+   - tag_a_a
+   - tag_a_b
+   thresholdDescription: "\u6a21\u578b\u5206"
+   token: model_a_token
+- !hust.software.elon.dto.RiskModelConfigDto
+   id: 234
+   autoPunishThreshold: 75.5
+   finish: false
+   level: 1
+   modelKey: model_b
+   outputName: model_b_output_name
+   riskScore: 35.5
+   submitQueueThreshold: 55.5
+   tags: !java.util.Arrays$ArrayList
+   - tag_b_a
+   - tag_b_b
+   thresholdDescription: "\u6a21\u578b\u5206"
+   token: model_b_token
+virtualQueueConfigDtoList: !java.util.Arrays$ArrayList
+- !hust.software.elon.dto.VirtualQueueConfigDto
+   id: 333333333
+   name: "\u865a\u62df\u961f\u5217A"
+   actualQueueConfigDtoList: !com.google.common.collect.RegularImmutableList
+   - !hust.software.elon.dto.ActualQueueConfigDto
+      id: 3333333333
+      name: "\u5b9e\u961f\u5217A"
+      createType: ForceCreate
+      weight: 50
+   - !hust.software.elon.dto.ActualQueueConfigDto
+      id: 4444444444
+      name: "\u5b9e\u961f\u5217B"
+      createType: ForceCreate
+      weight: 50
+   objectData: !com.google.common.collect.SingletonImmutableBiMap
+      "": ""
+   riskScore: 50.0
+   shuntMode: WEIGHT_SHUNT
+   tags: !com.google.common.collect.RegularImmutableSet
+   - tag_a_a
+   - tag_a_b
+- !hust.software.elon.dto.VirtualQueueConfigDto
+   id: 444444444
+   name: "\u865a\u62df\u961f\u5217A"
+   actualQueueConfigDtoList: !com.google.common.collect.RegularImmutableList
+   - !hust.software.elon.dto.ActualQueueConfigDto
+      id: 5555555555
+      name: "\u5b9e\u961f\u5217C"
+      createType: ForceCreate
+      weight: 50
+   - !hust.software.elon.dto.ActualQueueConfigDto
+      id: 6666666666
+      name: "\u5b9e\u961f\u5217D"
+      createType: ForceCreate
+      weight: 50
+   objectData: !com.google.common.collect.SingletonImmutableBiMap
+      "": ""
+   riskScore: 50.0
+   shuntMode: WEIGHT_SHUNT
+   tags: !com.google.common.collect.RegularImmutableSet
+   - tag_b_a
+   - tag_b_b

@@ -1,5 +1,6 @@
 package hust.software.elon.dto;
 
+import hust.software.elon.safety.people.domain.CreateType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,4 +16,5 @@ public class ActualQueueConfigDto {
     private Long id;
     private String name;
     private Integer weight;
+    private CreateType createType;
 }

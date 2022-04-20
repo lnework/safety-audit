@@ -1,10 +1,12 @@
 package hust.software.elon.dto;
 
 
+import hust.software.elon.domain.PipelineMessage;
 import lombok.Data;
 
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,26 +16,31 @@ import java.util.Set;
  */
 @Data
 public class PipelineResultDto {
-//    唯一id
-    private Long id;
+//    唯一id 用于查找pipeline审核结果
+    private String dealId;
 //    送审数据
-    private Long objectId;
-    private String objectType;
+    private PipelineMessage pipelineMessage;
+//    特征数据
+    private ObjectFeatureDto objectFeatureDto;
 
     private Long pipelineId;
     private String configKey;
 
+//    保存有关pipeline现场的一切
     private Map<String, Object> context;
 
 //    是否出错
     private Boolean fatalFlag;
 //    正常输出的结果
     private Double riskScore;
+//    命中的tags
     private Set<String> tags;
-    private Set<Long> virtualQueueId;
 
-    private String objectData;
+    private List<RiskModelResultDto> riskModelResultDtoList;
+
+    private List<QueueResultDto> queueResultDtoList;
 
     private Date auditTime;
 
+    private Exception exception;
 }

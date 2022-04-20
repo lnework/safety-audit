@@ -26,6 +26,7 @@ public enum ErrorCode {
      * 11 用户
      * 12 权限
      * 21 文件
+     * 22 管道
      */
 
     File_NOT_SAVE_DISK(2001, HttpStatus.INTERNAL_SERVER_ERROR, "文件存储失败"),
@@ -33,6 +34,17 @@ public enum ErrorCode {
 
     AUDIO_DELETE_ERROR(2101, HttpStatus.BAD_REQUEST, "删除音频失败，权限不足"),
     AUDIO_UPDATE_ERROR(2102, HttpStatus.BAD_REQUEST, "更新音频失败，权限不足"),
+
+
+    PIPELINE_BAD_REQUEST(2201, HttpStatus.BAD_REQUEST, "送入管道参数有误"),
+    PIPELINE_CONFIG_KEY_QPS_OVERFLOW(2201, HttpStatus.BAD_REQUEST, "对应ConfigKey超QPS"),
+    PIPELINE_YML_PARSE_ERROR(2202, null, "ConfigKey的Yaml解析失败"),
+    PIPELINE_(220, null, ""),
+    PIPELINE__(220, null, ""),
+    PIPELINE___(220, null, ""),
+    PIPELINE____(220, null, ""),
+
+
 
 
     RESOURCE_NOT_FOUND(1001, HttpStatus.NOT_FOUND, "未找到该资源"),

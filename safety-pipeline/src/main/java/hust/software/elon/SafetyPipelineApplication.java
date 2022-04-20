@@ -11,6 +11,7 @@ import org.springframework.context.annotation.ImportResource;
 @SpringBootApplication
 public class SafetyPipelineApplication {
 
+
 	public static void main(String[] args) {
 		SpringApplication.run(SafetyPipelineApplication.class, args);
 	}

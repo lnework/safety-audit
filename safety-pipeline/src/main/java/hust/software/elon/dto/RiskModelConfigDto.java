@@ -1,14 +1,19 @@
 package hust.software.elon.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author elon
  * @date 2022/4/16 17:12
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class RiskModelConfigDto {
     private Long id;
     private String modelKey;
@@ -23,6 +28,8 @@ public class RiskModelConfigDto {
     private Double submitQueueThreshold;
     private Double autoPunishThreshold;
 //  累加分数或打标签
-    private Double riskScore;
+    private Double score;
     private List<String> tags;
+//     多余透传给模型方的数据字段
+    private Map<String, String> extraJson;
 }

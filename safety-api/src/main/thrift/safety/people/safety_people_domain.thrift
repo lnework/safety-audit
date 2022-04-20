@@ -14,9 +14,14 @@ struct SendPeopleQueueRequest{
     1: required i64 objectId,
     2: required i64 queueId,
     3: string objectDataJson,
-    4: i64 virtualQueueId,
+    4: string virtualQueueId,
     5: CreateType createType,
     6: string reason
+}
+
+struct SendPeopleQueueBatchRequest{
+    1: list<SendPeopleQueueRequest> sendPeopleQueueRequests,
+    2: string configKey
 }
 
 struct SendPeopleQueueResponse{
@@ -24,5 +29,13 @@ struct SendPeopleQueueResponse{
     2: required i64 objectId,
     3: required i64 queueId,
     4: CreateType createType,
-    5: optional safety_common_domain.StatusCode statusCode = safety_common_domain.StatusCode.SUCCESS
+    255: optional safety_common_domain.StatusCode statusCode = safety_common_domain.StatusCode.SUCCESS
+}
+
+struct SendPeopleQueueBatchResponse{
+    1: list<SendPeopleQueueResponse> sendSuccessPeopleQueueResponses,
+    2: list<SendPeopleQueueResponse> sendFailPeopleQueueResponses,
+    3: bool allSuccess,
+    4: string configKey,
+    255: optional safety_common_domain.StatusCode statusCode = safety_common_domain.StatusCode.SUCCESS
 }
