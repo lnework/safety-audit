@@ -238,6 +238,7 @@ public class StreamlineServiceImpl implements StreamlineService {
         sendReviewRiskRequest.setObjectType(pipelineMessage.getObjectType());
         sendReviewRiskRequest.setConfigKey(riskModelConfigDto.getModelKey());
         sendReviewRiskRequest.setToken(riskModelConfigDto.getToken());
+        sendReviewRiskRequest.setForceNotCache(false);
 
         Map<String, Object> reviewRequestExtraMap = new HashMap<>();
         for(Map.Entry<String, String> entry: riskModelConfigDto.getExtraJson().entrySet()){

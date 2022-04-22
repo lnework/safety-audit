@@ -26,6 +26,7 @@ struct AudioQueryModelRequest{
 	3: double threshold,
 //	模型token
 	4: string token
+	5: string extraJson
 }
 
 struct SeedAudioRequest{

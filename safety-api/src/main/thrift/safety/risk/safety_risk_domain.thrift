@@ -6,7 +6,8 @@ struct SendReviewRiskRequest{
     2: safety_common_domain.ObjectType objectType,
     3: required string configKey,
     4: string token,
-    5: string extraJson
+    5: bool forceNotCache,
+    6: string extraJson
 }
 
 struct SendReviewRiskResponse{
