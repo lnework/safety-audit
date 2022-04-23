@@ -15,11 +15,12 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public enum  RiskTypeEnum {
-    AUDIO_SENSITIVE_WORD("", "", 0.0, RiskType.MODEL_ASR),
-    AUDIO_REPEAT("", "", 0.0, RiskType.MODEL_REPEAT),
-    AUDIO_VOICEPRINT("", "", 0.0, RiskType.MODEL_VOICE_PRINT),
-    AUDIO_PORN("", "", 0.0, RiskType.MODEL_NONE),
-    NONE("", "", 0.0, RiskType.MODEL_NONE)
+    AUDIO_ASR("audio_asr_risk", "audio_asr_risk", 0.0, RiskType.MODEL_ASR),
+    AUDIO_SENSITIVE_WORD("audio_sensitive_word_risk", "audio_sensitive_word_risk", 0.0, RiskType.MODEL_ASR),
+    AUDIO_REPEAT("audio_repeat_risk", "audio_repeat_risk", 0.0, RiskType.MODEL_REPEAT),
+    AUDIO_VOICEPRINT("audio_voiceprint_risk", "audio_voiceprint_risk", 0.0, RiskType.MODEL_VOICE_PRINT),
+    AUDIO_PORN("audio_porn_risk", "audio_porn_risk", 0.0, RiskType.MODEL_NONE),
+    NONE("none_risk", "none", 0.0, RiskType.MODEL_NONE)
     ;
 
     private final String configKey;

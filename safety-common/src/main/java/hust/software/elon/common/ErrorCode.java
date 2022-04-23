@@ -27,6 +27,7 @@ public enum ErrorCode {
      * 12 权限
      * 21 文件
      * 22 管道
+     * 23 风险服务
      */
 
     File_NOT_SAVE_DISK(2001, HttpStatus.INTERNAL_SERVER_ERROR, "文件存储失败"),
@@ -35,7 +36,6 @@ public enum ErrorCode {
     AUDIO_DELETE_ERROR(2101, HttpStatus.BAD_REQUEST, "删除音频失败，权限不足"),
     AUDIO_UPDATE_ERROR(2102, HttpStatus.BAD_REQUEST, "更新音频失败，权限不足"),
 
-
     PIPELINE_BAD_REQUEST(2201, HttpStatus.BAD_REQUEST, "送入管道参数有误"),
     PIPELINE_CONFIG_KEY_QPS_OVERFLOW(2201, HttpStatus.BAD_REQUEST, "对应ConfigKey超QPS"),
     PIPELINE_YML_PARSE_ERROR(2202, null, "ConfigKey的Yaml解析失败"),
@@ -43,6 +43,10 @@ public enum ErrorCode {
     PIPELINE__(220, null, ""),
     PIPELINE___(220, null, ""),
     PIPELINE____(220, null, ""),
+
+    RISK_SENSITIVE_TABLE_NOT_EXIST(2301, HttpStatus.BAD_REQUEST, "敏感词表不存在"),
+    RISK_SENSITIVE_WORD_NOT_EXIST(2311, HttpStatus.BAD_REQUEST, "敏感词不存在"),
+    RISK_SENSITIVE_WORD_AREADY_DELETE(2312, HttpStatus.BAD_REQUEST, "敏感词已被删除"),
 
 
 

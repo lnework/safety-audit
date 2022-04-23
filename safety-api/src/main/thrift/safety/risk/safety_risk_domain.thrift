@@ -13,7 +13,7 @@ struct SendReviewRiskRequest{
 struct SendReviewRiskResponse{
     1: required i64 objectId,
     2: safety_common_domain.ObjectType objectType,
-    3: required string modelKey,
+    3: required string configKey,
     4: double riskScore,
     5: double modelScore,
     6: bool hitModel,

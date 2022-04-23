@@ -1,13 +1,14 @@
 package hust.software.elon.controller;
 
 
-import hust.software.elon.domain.KeyWord;
+import com.alibaba.fastjson.JSONObject;
+import com.hlin.sensitive.KWSeeker;
+import com.hlin.sensitive.KWSeekerManage;
+import com.hlin.sensitive.KeyWord;
+import com.hlin.sensitive.SensitiveWordResult;
 import hust.software.elon.dto.KeyWordDto;
 import hust.software.elon.safety.model.domain.*;
 import hust.software.elon.safety.model.service.AudioModelService;
-import hust.software.elon.service.impl.KWSeeker;
-import hust.software.elon.service.impl.KWSeekerManage;
-import hust.software.elon.service.impl.SensitiveWordResult;
 import lombok.RequiredArgsConstructor;
 import org.apache.thrift.TException;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -71,6 +72,7 @@ public class TestController {
         for (SensitiveWordResult result: words1){
             KeyWordDto keyWordDto = (KeyWordDto) kwsMap.get(result.getWord());
             System.out.println(keyWordDto);
+            System.out.println(JSONObject.toJSONString(keyWordDto));
         }
 
         System.out.println("\n=================================================\n");

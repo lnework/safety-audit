@@ -1,9 +1,8 @@
+include "../common/safety_common_domain.thrift"
+
+
 namespace java hust.software.elon.safety.model.domain
 
-enum StatusCode{
-    SUCCESS = 0,
-    ERROR = 1,
-}
 
 enum RiskType{
 //    无需模型
@@ -40,7 +39,7 @@ struct SeedAudioRequest{
 struct SeedAudioResponse{
     1: required i64 id,
     2: RiskType riskType,
-    3: optional StatusCode statusCode = StatusCode.SUCCESS
+    3: optional safety_common_domain.StatusCode statusCode = safety_common_domain.StatusCode.SUCCESS
 }
 
 struct AsrModelResponse{
@@ -49,7 +48,7 @@ struct AsrModelResponse{
     2: string asr,
 //    拼音
     3: list<string> spell
-    4: optional StatusCode statusCode = StatusCode.SUCCESS
+    4: optional safety_common_domain.StatusCode statusCode = safety_common_domain.StatusCode.SUCCESS
 }
 
 struct RepeatSegment{
@@ -64,7 +63,7 @@ struct RepeatSegment{
 struct RepeatModelResponse{
     1: i64 id,
     2: list<RepeatSegment> repeatSegments
-    3: optional StatusCode statusCode = StatusCode.SUCCESS
+    3: optional safety_common_domain.StatusCode statusCode = safety_common_domain.StatusCode.SUCCESS
 }
 
 struct SimilarPrint{
@@ -75,5 +74,5 @@ struct SimilarPrint{
 struct VoiceprintModelResponse{
     1: i64 id,
     2: list<SimilarPrint> similarPrints
-    3: optional StatusCode statusCode = StatusCode.SUCCESS
+    3: optional safety_common_domain.StatusCode statusCode = safety_common_domain.StatusCode.SUCCESS
 }
