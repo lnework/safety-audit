@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<!-- zookeeper -->
+	<bean id="thriftZookeeper" class="hust.software.elon.thrift.ZookeeperFactory"
+		destroy-method="close">
+		<property name="zkHosts" value="${thrift.zkHosts}" />
+		<property name="namespace" value="${thrift.namespace}" />
+		<property name="connectionTimeout" value="${thrift.connectionTimeout}" />
+		<property name="sessionTimeout" value="${thrift.sessionTimeout}" />
+		<property name="singleton" value="true" />
+	</bean>
+	
+	<bean id="serviceAddressRegister"
+		class="hust.software.elon.thrift.zookeeper.impl.ThriftServerAddressRegisterZookeeper"
+		destroy-method="close">
+		<property name="zkClient" ref="thriftZookeeper" />
+	</bean>
+
+	<bean id="pipelineService" class="hust.software.elon.thrift.ThriftServiceServerFactory"
+		destroy-method="close">
+		<property name="service" ref="pipelineServiceImpl" />
+		<property name="port" value="${thrift.server.port}" />
+		<property name="version" value="1.0.0" />
+		<property name="weight" value="1" />
+		<property name="thriftServerAddressRegister" ref="serviceAddressRegister" />
+	</bean>
+
+	<bean id="riskService" class="hust.software.elon.thrift.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="maxActive" value="5" />
+		<property name="idleTime" value="180000" />
+		<property name="serverAddressProvider">
+			<bean class="hust.software.elon.thrift.zookeeper.impl.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="hust.software.elon.safety.risk.service.RiskService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeper" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="peopleService" class="hust.software.elon.thrift.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="maxActive" value="5" />
+		<property name="idleTime" value="180000" />
+		<property name="serverAddressProvider">
+			<bean class="hust.software.elon.thrift.zookeeper.impl.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="hust.software.elon.safety.people.service.PeopleService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeper" />
+			</bean>
+		</property>
+	</bean>
+</beans>

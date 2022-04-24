@@ -5,6 +5,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONObject;
 import hust.software.elon.dto.*;
 import hust.software.elon.enums.RiskTypeEnum;
+import hust.software.elon.request.SensitiveWordExtraJson;
 import hust.software.elon.safety.common.domain.StatusCode;
 import hust.software.elon.safety.model.domain.AsrModelResponse;
 import hust.software.elon.safety.model.domain.AudioQueryModelRequest;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
  * @author elon
  * @date 2022/4/20 20:07
  */
-@Service
+@Service("riskServiceImpl")
 @RequiredArgsConstructor
 public class RiskServiceImpl implements RiskService.Iface {
     private final AudioModelService.Iface audioModelService;
@@ -37,6 +38,8 @@ public class RiskServiceImpl implements RiskService.Iface {
     public SendReviewRiskResponse sendToReviewRisk(SendReviewRiskRequest req) throws TException {
         RiskTypeEnum riskTypeEnum = RiskTypeEnum.checkAndGet(req.getConfigKey(), req.getToken());
         SendReviewRiskResponse sendReviewRiskResponse = new SendReviewRiskResponse();
+        sendReviewRiskResponse.setObjectId(req.getObjectId());
+        sendReviewRiskResponse.setConfigKey(req.getConfigKey());
         if (RiskTypeEnum.NONE == riskTypeEnum){
             sendReviewRiskResponse.setStatusCode(StatusCode.ERROR);
             return sendReviewRiskResponse;
@@ -65,12 +68,12 @@ public class RiskServiceImpl implements RiskService.Iface {
         }
 
         resp.setObjectId(voiceprintModelResponse.getId());
+        resp.setModelScore(voiceprintModelResponse.getModelScore());
         resp.setObjectType(sendReviewRiskRequest.getObjectType());
         resp.setConfigKey(riskTypeEnum.getConfigKey());
         if (CollectionUtil.isNotEmpty(voiceprintModelResponse.getSimilarPrints())){
             resp.setHitModel(true);
         }
-
 
         List<SimilarPrintRiskDto> similarPrintRiskDtoList = voiceprintModelResponse.getSimilarPrints().stream()
                 .map(SimilarPrintRiskDto::convertFromSimilarPrint).collect(Collectors.toList());
@@ -112,8 +115,10 @@ public class RiskServiceImpl implements RiskService.Iface {
         if (asrModelResponse.getStatusCode() != StatusCode.SUCCESS){
             return resp.setStatusCode(StatusCode.ERROR);
         }
+        SensitiveWordExtraJson extraJson = JSONObject.parseObject(sendReviewRiskRequest.getExtraJson(), SensitiveWordExtraJson.class);
 //        TODO table highlight 从extraJson中取
-        SensitiveWordRiskResultDto sensitiveWordResultDto = sensitiveWordService.recognizeSensitiveWord(asrModelResponse.getAsr(), 0, true);
+        SensitiveWordRiskResultDto sensitiveWordResultDto = sensitiveWordService
+                .recognizeSensitiveWord(asrModelResponse.getAsr(), extraJson.getTableId(), extraJson.isHighlight());
 
         resp.setObjectId(sendReviewRiskRequest.getObjectId());
         resp.setObjectType(sendReviewRiskRequest.getObjectType());

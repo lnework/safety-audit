@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SensitiveWordServiceImpl implements SensitiveWordService {
     private final Map<String, Map<String, KeyWord>> sensitiveTableMap = new HashMap<>();
-    private final Map<String, KWSeeker> tableIdString2Seeker = new HashMap<>();
-    private final KWSeekerManage kwSeekerManage = new KWSeekerManage(tableIdString2Seeker);
+//    private final Map<String, KWSeeker> tableIdString2Seeker = new HashMap<>();
+    private final KWSeekerManage kwSeekerManage = new KWSeekerManage();
 
     private final SensitiveWordMapper sensitiveWordMapper;
     private final SensitiveTableMapper sensitiveTableMapper;
@@ -42,8 +42,12 @@ public class SensitiveWordServiceImpl implements SensitiveWordService {
         String tableIdString = Long.toString(tableId);
         Map<String, KeyWord> sensitiveTableWord = sensitiveTableMap.get(tableIdString);
 
-        if (ObjectUtil.isNull(sensitiveTableWord)&&loadSensitiveWord(tableId)){
-            return null;
+        if (ObjectUtil.isNull(sensitiveTableWord)){
+            if (!loadSensitiveWord(tableId)){
+                throw new BusinessException(ErrorCode.RISK_SENSITIVE_TABLE_NOT_EXIST);
+            }
+//            重新获取
+            sensitiveTableWord = sensitiveTableMap.get(tableIdString);
         }
         SensitiveWordRiskResultDto sensitiveWordResultDto = new SensitiveWordRiskResultDto();
         List<SensitiveWordResult> sensitiveWordResultList = kwSeekerManage.getKWSeeker(tableIdString).findWords(text);
@@ -136,7 +140,7 @@ public class SensitiveWordServiceImpl implements SensitiveWordService {
         }
         sensitiveTableMap.put(Long.toString(tableId), sensitiveTableWord);
         KWSeeker kwSeeker = new KWSeeker(new HashSet<>(sensitiveTableWord.values()));
-        tableIdString2Seeker.put(Long.toString(tableId), kwSeeker);
+        kwSeekerManage.putKWSeeker(Long.toString(tableId), kwSeeker);
         return true;
     }
 }

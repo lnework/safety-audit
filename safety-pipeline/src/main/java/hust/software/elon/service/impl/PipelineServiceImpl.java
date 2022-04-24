@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
  * @author elon
  * @date 2022/4/17 19:56
  */
-@Service
+@Service("pipelineServiceImpl")
 @RequiredArgsConstructor
 public class PipelineServiceImpl implements PipelineService.Iface {
     private final KafkaUtil kafkaUtil;

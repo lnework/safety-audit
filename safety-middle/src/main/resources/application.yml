@@ -35,7 +35,7 @@ thrift:
   zkHosts: 106.14.206.105:2181
   namespace: safety_audit
   server:
-    port: 40000
+    port: 47777
   connectionTimeout: 3000
   sessionTimeout: 3000
 

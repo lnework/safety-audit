@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2022/4/5 19:13
  */
 @Slf4j
+@Component
 public class RedisUtil {
     private RedisTemplate<Object, Object> redisTemplate;
 
