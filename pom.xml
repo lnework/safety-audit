@@ -11,6 +11,7 @@
         <module>safety-api</module>
         <module>safety-pipeline</module>
         <module>safety-risk</module>
+        <module>safety-people</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

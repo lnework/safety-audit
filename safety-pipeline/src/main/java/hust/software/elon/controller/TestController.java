@@ -1,5 +1,8 @@
 package hust.software.elon.controller;
 
+import hust.software.elon.safety.people.domain.SendPeopleQueueRequest;
+import hust.software.elon.safety.people.domain.SendPeopleQueueResponse;
+import hust.software.elon.safety.people.service.PeopleService;
 import hust.software.elon.safety.pipeline.domain.SendPipelineRequest;
 import hust.software.elon.safety.pipeline.service.PipelineService;
 import hust.software.elon.safety.risk.domain.SendReviewRiskRequest;
@@ -23,6 +26,12 @@ public class TestController {
     private final StreamlineService streamlineService;
     private final PipelineService.Iface pipelineService;
     private final RiskService.Iface riskService;
+    private final PeopleService.Iface peopleService;
+
+    @RequestMapping("/people")
+    public SendPeopleQueueResponse testPeople(@RequestBody SendPeopleQueueRequest request) throws TException {
+        return peopleService.sendToPeopleQueue(request);
+    }
 
     @RequestMapping("/risk")
     public SendReviewRiskResponse testRisk(@RequestBody SendReviewRiskRequest request) throws TException {

@@ -104,9 +104,12 @@
 <!--        <table tableName="sys_user" domainObjectName="SysUser" enableCountByExample="false"-->
 <!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
 <!--               enableSelectByExample="false" selectByExampleQueryId="false" />-->
-        <table tableName="test_table" domainObjectName="TestTable" enableCountByExample="false"
+        <table tableName="people_audit_queue" domainObjectName="PeopleAuditQueue" enableCountByExample="false"
                enableUpdateByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" selectByExampleQueryId="false" />
+<!--        <table tableName="people_audit_task" domainObjectName="PeopleAuditTask" enableCountByExample="false"-->
+<!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
+<!--               enableSelectByExample="false" selectByExampleQueryId="false" />-->
     </context>
 </generatorConfiguration>
 
