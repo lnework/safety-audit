@@ -43,6 +43,8 @@ public class PeopleAuditQueueServiceImpl implements PeopleAuditQueueService {
     public PeopleAuditQueueDto createQueue(PeopleAuditQueueDto queueDto) {
         PeopleAuditQueue peopleAuditQueue = new PeopleAuditQueue();
         BeanUtils.copyProperties(queueDto, peopleAuditQueue);
+//        防止创建的时候给定id
+        peopleAuditQueue.setId(null);
         int insertFlag = queueMapper.insertSelective(peopleAuditQueue);
         if (insertFlag < 1){
             throw new SystemException(ErrorCode.MYSQL_INSERT_ERROR, ImmutableMap.of("PeopleAuditQueueDto=", queueDto));

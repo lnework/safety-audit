@@ -104,10 +104,13 @@
 <!--        <table tableName="sys_user" domainObjectName="SysUser" enableCountByExample="false"-->
 <!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
 <!--               enableSelectByExample="false" selectByExampleQueryId="false" />-->
-        <table tableName="people_audit_queue" domainObjectName="PeopleAuditQueue" enableCountByExample="false"
-               enableUpdateByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" selectByExampleQueryId="false" />
-<!--        <table tableName="people_audit_task" domainObjectName="PeopleAuditTask" enableCountByExample="false"-->
+<!--        <table tableName="people_audit_queue" domainObjectName="PeopleAuditQueue" enableCountByExample="false"-->
+<!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
+<!--               enableSelectByExample="false" selectByExampleQueryId="false" />-->
+<!--        <table tableName="audit_policy" domainObjectName="AuditPolicy" enableCountByExample="false"-->
+<!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
+<!--               enableSelectByExample="false" selectByExampleQueryId="false" />-->
+<!--        <table tableName="audit_tag" domainObjectName="AuditTag" enableCountByExample="false"-->
 <!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
 <!--               enableSelectByExample="false" selectByExampleQueryId="false" />-->
     </context>

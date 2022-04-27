@@ -7,3 +7,7 @@ service CustomerService{
 
 	void create(1:safety_middle_domain.Customer customer);
 }
+
+service SysUserService{
+    safety_middle_domain.SysUserResponse getSysUsers(1:safety_middle_domain.SysUserRequest req);
+}

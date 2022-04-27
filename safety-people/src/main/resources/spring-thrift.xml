@@ -37,15 +37,15 @@
 		<property name="thriftServerAddressRegister" ref="serviceAddressRegister" />
 	</bean>
 
-<!--	<bean id="audioModelService" class="hust.software.elon.thrift.ThriftServiceClientProxyFactory" destroy-method="close">-->
-<!--		<property name="maxActive" value="5" />-->
-<!--		<property name="idleTime" value="180000" />-->
-<!--		<property name="serverAddressProvider">-->
-<!--			<bean class="hust.software.elon.thrift.zookeeper.impl.ThriftServerAddressProviderZookeeper">-->
-<!--				<property name="service" value="hust.software.elon.safety.model.service.AudioModelService" />-->
-<!--				<property name="version" value="1.0.0" />-->
-<!--				<property name="zkClient" ref="thriftZookeeper" />-->
-<!--			</bean>-->
-<!--		</property>-->
-<!--	</bean>-->
+	<bean id="sysUserService" class="hust.software.elon.thrift.ThriftServiceClientProxyFactory" destroy-method="close">
+		<property name="maxActive" value="5" />
+		<property name="idleTime" value="180000" />
+		<property name="serverAddressProvider">
+			<bean class="hust.software.elon.thrift.zookeeper.impl.ThriftServerAddressProviderZookeeper">
+				<property name="service" value="hust.software.elon.safety.middle.service.SysUserService" />
+				<property name="version" value="1.0.0" />
+				<property name="zkClient" ref="thriftZookeeper" />
+			</bean>
+		</property>
+	</bean>
 </beans>

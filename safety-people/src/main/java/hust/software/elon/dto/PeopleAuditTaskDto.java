@@ -1,10 +1,13 @@
 package hust.software.elon.dto;
 
+import hust.software.elon.domain.PeopleAuditTask;
+import hust.software.elon.request.PeopleAuditTaskRequest;
 import hust.software.elon.safety.people.domain.CreateType;
 import hust.software.elon.safety.people.domain.SendPeopleQueueRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -48,6 +51,18 @@ public class PeopleAuditTaskDto {
     private Long auditUserId;
 
     private String auditUserName;
+
+    public static PeopleAuditTaskDto convertFromEntity(PeopleAuditTask peopleAuditTask){
+        PeopleAuditTaskDto peopleAuditTaskDto = new PeopleAuditTaskDto();
+        BeanUtils.copyProperties(peopleAuditTask, peopleAuditTaskDto);
+        return peopleAuditTaskDto;
+    }
+
+    public static PeopleAuditTaskDto convertFromRequest(PeopleAuditTaskRequest peopleAuditTaskRequest){
+        PeopleAuditTaskDto peopleAuditTaskDto = new PeopleAuditTaskDto();
+        BeanUtils.copyProperties(peopleAuditTaskRequest, peopleAuditTaskDto);
+        return peopleAuditTaskDto;
+    }
 
     public static PeopleAuditTaskDto convertFromSendPeopleRequest(SendPeopleQueueRequest request){
         PeopleAuditTaskDto peopleAuditTaskDto = new PeopleAuditTaskDto();

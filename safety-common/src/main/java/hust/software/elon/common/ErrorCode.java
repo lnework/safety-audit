@@ -18,6 +18,7 @@ public enum ErrorCode {
      * 1 thrift rpc调用异常
      * 2 mysql
      */
+    THRIFT_ERROR(100, HttpStatus.INTERNAL_SERVER_ERROR, "thrift通用异常"),
     THRIFT_NO_REMOTE_SERVICE(101, HttpStatus.INTERNAL_SERVER_ERROR, "无可用的远程服务"),
     THRIFT_NOT_REGISTER_SERVICE_ADDRESS(102, HttpStatus.INTERNAL_SERVER_ERROR, "zookeeper注册服务地址异常"),
     THRIFT_NOT_FIND_SERVER_IP(103, HttpStatus.INTERNAL_SERVER_ERROR, "无法找到服务IP"),
@@ -34,6 +35,7 @@ public enum ErrorCode {
      * 23 风险服务
      * 31 人审队列
      */
+    USER_EXCEPTION(1000, null, "用户通用异常"),
 
     File_NOT_SAVE_DISK(2001, HttpStatus.INTERNAL_SERVER_ERROR, "文件存储失败"),
     File_NOT_SAVE(2002, HttpStatus.BAD_REQUEST, "上传文件失败"),
@@ -53,8 +55,9 @@ public enum ErrorCode {
     RISK_SENSITIVE_WORD_NOT_EXIST(2311, HttpStatus.BAD_REQUEST, "敏感词不存在"),
     RISK_SENSITIVE_WORD_AREADY_DELETE(2312, HttpStatus.BAD_REQUEST, "敏感词已被删除"),
 
-    PEOPLE_QUEUE_(310, null, ""),
+    PEOPLE_QUEUE_(3100, null, ""),
     PEOPLE_QUEUE_NOT_EXIST(3101, null, "人审队列不存在"),
+    PEOPLE_TAG_NOT_EXIST(3111, null, "审核标签不存在"),
 
 
 
