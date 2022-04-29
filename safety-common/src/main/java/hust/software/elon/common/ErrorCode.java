@@ -58,6 +58,7 @@ public enum ErrorCode {
     PEOPLE_QUEUE_(3100, null, ""),
     PEOPLE_QUEUE_NOT_EXIST(3101, null, "人审队列不存在"),
     PEOPLE_TAG_NOT_EXIST(3111, null, "审核标签不存在"),
+    PEOPLE_POLICY_NOT_EXIST(3121, null, "审核Policy不存在"),
 
 
 

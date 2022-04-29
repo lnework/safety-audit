@@ -1,9 +1,13 @@
 package hust.software.elon.dto;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
+import hust.software.elon.domain.AuditPolicy;
+import hust.software.elon.request.PeopleAuditPolicyRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -41,6 +45,24 @@ public class AuditPolicyDto {
     private Date updateTime;
 
     private Integer status;
+
+    public static AuditPolicyDto convertFromRequest(PeopleAuditPolicyRequest request){
+        if (ObjectUtil.isNull(request)){
+            return null;
+        }
+        AuditPolicyDto auditPolicyDto = new AuditPolicyDto();
+        BeanUtils.copyProperties(request, auditPolicyDto);
+        return auditPolicyDto;
+    }
+
+    public static AuditPolicyDto convertFromEntity(AuditPolicy auditPolicy){
+        if (ObjectUtil.isNull(auditPolicy)){
+            return null;
+        }
+        AuditPolicyDto auditPolicyDto = new AuditPolicyDto();
+        BeanUtils.copyProperties(auditPolicy, auditPolicyDto);
+        return auditPolicyDto;
+    }
 
     public Long getId() {
         return id;
