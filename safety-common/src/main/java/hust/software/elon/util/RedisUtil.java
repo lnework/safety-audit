@@ -27,6 +27,26 @@ public class RedisUtil {
         this.redisTemplate = redisTemplate;
     }
 
+
+    /**
+     * 小于0将设置无限期
+     * @param key
+     * @param time
+     * @return
+     */
+    public boolean setIfNotExist(String key, Object value, long time){
+        try {
+            if (time > 0){
+                return redisTemplate.opsForValue().setIfAbsent(key, value, time, TimeUnit.SECONDS);
+            }else {
+                return redisTemplate.opsForValue().setIfAbsent(key, value);
+            }
+        }catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
     /**
      * 指定缓存失效时间
      *
@@ -412,6 +432,7 @@ public class RedisUtil {
 
     // ============================set=============================
 
+
     /**
      * 根据key获取Set中的所有值
      *
@@ -513,6 +534,25 @@ public class RedisUtil {
     }
 
     // ===============================list=================================
+
+    public Object listLeftPop(String key){
+        try {
+            return redisTemplate.opsForList().leftPop(key);
+        }catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    public long listRightPush(String key, Object value){
+        try {
+            return redisTemplate.opsForList().rightPush(key, value);
+        }catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return 0;
+        }
+    }
+
 
     /**
      * 获取list缓存的内容

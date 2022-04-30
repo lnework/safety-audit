@@ -26,6 +26,8 @@ public enum ErrorCode {
     MYSQL_INSERT_ERROR(201, HttpStatus.INTERNAL_SERVER_ERROR, "mysql插入失败"),
     MYSQL_UPDATE_ERROR(202, HttpStatus.INTERNAL_SERVER_ERROR, "mysql更新失败"),
 
+    REDIS_INSERT_ERROR(301, HttpStatus.INTERNAL_SERVER_ERROR, "redis插入失败"),
+
     /**
      * 四位数 业务异常
      * 11 用户
@@ -59,6 +61,7 @@ public enum ErrorCode {
     PEOPLE_QUEUE_NOT_EXIST(3101, null, "人审队列不存在"),
     PEOPLE_TAG_NOT_EXIST(3111, null, "审核标签不存在"),
     PEOPLE_POLICY_NOT_EXIST(3121, null, "审核Policy不存在"),
+    PEOPLE_AUDIT_EXPIRE(3131, null, "审核限时5分钟，已超时"),
 
 
 

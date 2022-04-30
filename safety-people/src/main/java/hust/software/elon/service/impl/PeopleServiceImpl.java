@@ -3,6 +3,7 @@ package hust.software.elon.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.google.common.collect.ImmutableMap;
 import hust.software.elon.common.ErrorCode;
+import hust.software.elon.common.PeopleConstant;
 import hust.software.elon.domain.PeopleAuditQueue;
 import hust.software.elon.domain.PeopleAuditTask;
 import hust.software.elon.dto.PeopleAuditQueueDto;
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 @Service("peopleServiceImpl")
 @RequiredArgsConstructor
 public class PeopleServiceImpl implements PeopleService.Iface {
-    public static final String PEOPLE_AUDIT_QUEUE_CACHE_KEY_PREFIX = "people_audit_queue_";
+
     public static final long REDIS_EXPIRE_SECONDS = 60;
 
     private final PeopleAuditQueueMapper queueMapper;
@@ -77,10 +78,21 @@ public class PeopleServiceImpl implements PeopleService.Iface {
             throw new BusinessException(ErrorCode.MYSQL_INSERT_ERROR, ImmutableMap.of("PeopleAuditTaskDto", peopleAuditTaskDto));
         }
         peopleAuditTaskDto.setId(peopleAuditTask.getId());
+
+        savePeopleTaskInRedis(peopleAuditTaskDto);
+    }
+
+    private void savePeopleTaskInRedis(PeopleAuditTaskDto peopleAuditTaskDto){
+        String redis_queue_list_key = PeopleConstant.PEOPLE_NEED_AUDIT_TASK_QUEUE_CACHE_KEY_PREFIX + peopleAuditTaskDto.getQueueId();
+        long pushFlag = redisUtil.listRightPush(redis_queue_list_key, peopleAuditTaskDto.getId());
+        if (pushFlag == 0){
+            throw new BusinessException(ErrorCode.REDIS_INSERT_ERROR,
+                    ImmutableMap.of("redis_queue_list_key", redis_queue_list_key, "peopleAuditTaskDto", peopleAuditTaskDto));
+        }
     }
 
     private PeopleAuditQueueDto getPeopleAuditQueueDto(long queueId){
-        String peopleAuditQueueRedisKey = PEOPLE_AUDIT_QUEUE_CACHE_KEY_PREFIX + queueId;
+        String peopleAuditQueueRedisKey = PeopleConstant.PEOPLE_AUDIT_QUEUE_CACHE_KEY_PREFIX + queueId;
         PeopleAuditQueueDto peopleAuditQueueDto = (PeopleAuditQueueDto) redisUtil.get(peopleAuditQueueRedisKey);
         if (ObjectUtil.isNull(peopleAuditQueueDto)){
             PeopleAuditQueue peopleAuditQueue = queueMapper.selectByPrimaryKey(queueId);

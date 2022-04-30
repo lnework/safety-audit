@@ -1,0 +1,174 @@
+package hust.software.elon.service.impl;
+
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
+import com.google.common.collect.ImmutableMap;
+import hust.software.elon.common.ErrorCode;
+import hust.software.elon.common.PeopleConstant;
+import hust.software.elon.common.enums.AuditTaskStatusEnum;
+import hust.software.elon.domain.AuditPolicy;
+import hust.software.elon.domain.PeopleAuditTask;
+import hust.software.elon.dto.PeopleAuditTaskDto;
+import hust.software.elon.exception.BusinessException;
+import hust.software.elon.mapper.AuditPolicyMapper;
+import hust.software.elon.mapper.AuditTagMapper;
+import hust.software.elon.mapper.PeopleAuditTaskMapper;
+import hust.software.elon.service.PeopleAuditService;
+import hust.software.elon.util.RedisUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * @author elon
+ * @date 2022/4/30 15:15
+ */
+@Service
+@RequiredArgsConstructor
+public class PeopleAuditServiceImpl implements PeopleAuditService {
+    private final RedisUtil redisUtil;
+
+    private final PeopleAuditTaskMapper taskMapper;
+    private final AuditTagMapper tagMapper;
+    private final AuditPolicyMapper policyMapper;
+
+    /**
+     * 领取任务：
+     * people_need_audit_task_list_pool_(queueId)  people_auditing_task_list_pool_(queueId)
+     * people_auditing_task_(taskId)
+     * 1. 获取list元素 同时setIfNotExist一个60*5分钟的 people_auditing_task_(taskId) userId为 value 当提交时校验是否是同一个用户
+     * 2. 如果list元素不存在 遍历set 当发现没有key的元素 可设置一个key同时取该元素的key
+     * 3. 当取出成功时更新数据库 审核状态...
+     * @param queueId
+     * @param auditUserId
+     * @return
+     */
+    @Override
+    public PeopleAuditTaskDto getAuditTask(Long queueId, Long auditUserId) {
+        String peopleAuditQueueRedisKey = PeopleConstant.PEOPLE_NEED_AUDIT_TASK_QUEUE_CACHE_KEY_PREFIX + queueId;
+        if (redisUtil.lGetListSize(peopleAuditQueueRedisKey) > 0){
+            return getNotAuditTask(queueId, auditUserId);
+        }else{
+            //        从set中看看有没有过期审核的
+            return getExpireAuditingTask(queueId, auditUserId);
+        }
+    }
+
+    public PeopleAuditTaskDto getExpireAuditingTask(Long queueId, Long auditUserId){
+
+        String peopleAuditingSetRedisKey = PeopleConstant.PEOPLE_AUDITING_TASK_QUEUE_CACHE_KEY_PREFIX + queueId;
+//        同一个队列同时并发审核的人数不会很多 因此可一次性拿出来
+        Set<Object> auditingTaskSet = redisUtil.sGet(peopleAuditingSetRedisKey);
+        if (CollectionUtil.isEmpty(auditingTaskSet)){
+            return null;
+        }
+//        轮询查找是否有审核过期的时间的key
+        for (Object taskIdObj: auditingTaskSet){
+            Long taskId = (Long) taskIdObj;
+            String taskRedisKey = PeopleConstant.PEOPLE_AUDIT_TASK_CACHE_KEY_PREFIX + taskId;
+            if (redisUtil.setIfNotExist(taskRedisKey, auditUserId, PeopleConstant.AUDITING_TASK_EXPIRE_TIME)){
+                PeopleAuditTask peopleAuditTask = taskMapper.selectByPrimaryKey(taskId);
+                //   不存在或已经审核/废弃的key
+                if (!needAudit(peopleAuditTask)){
+                    redisUtil.setRemove(peopleAuditingSetRedisKey, taskId);
+                    continue;
+                }
+
+                peopleAuditTask.setStatus(AuditTaskStatusEnum.AUDITING.getValue());
+                peopleAuditTask.setAuditUserId(auditUserId);
+                peopleAuditTask.setAuditTime(new Date());
+                int updateFlag = taskMapper.updateByPrimaryKeySelective(peopleAuditTask);
+                if (updateFlag < 1){
+                    continue;
+                }
+                return PeopleAuditTaskDto.convertFromEntity(peopleAuditTask);
+            }
+        }
+        return null;
+    }
+
+    public PeopleAuditTaskDto getNotAuditTask(Long queueId, Long auditUserId){
+        String peopleAuditQueueRedisKey = PeopleConstant.PEOPLE_NEED_AUDIT_TASK_QUEUE_CACHE_KEY_PREFIX + queueId;
+        Long taskId = (Long) redisUtil.listLeftPop(peopleAuditQueueRedisKey);
+        if (ObjectUtil.isNull(taskId)){
+            return null;
+        }
+        String taskRedisKey = PeopleConstant.PEOPLE_AUDIT_TASK_CACHE_KEY_PREFIX + taskId;
+        if (!redisUtil.setIfNotExist(taskRedisKey, auditUserId, PeopleConstant.AUDITING_TASK_EXPIRE_TIME)){
+            return null;
+        }
+        PeopleAuditTask peopleAuditTask = taskMapper.selectByPrimaryKey(taskId);
+        if (ObjectUtil.isNull(peopleAuditTask) || !AuditTaskStatusEnum.NEED_AUDIT.getValue().equals(peopleAuditTask.getStatus())){
+            return null;
+        }
+        //        放到set中
+        String peopleAuditingSetRedisKey = PeopleConstant.PEOPLE_AUDITING_TASK_QUEUE_CACHE_KEY_PREFIX + queueId;
+        long redisInsertFlag = redisUtil.sSet(peopleAuditingSetRedisKey, taskId);
+        if (redisInsertFlag == 0){
+            return null;
+        }
+        peopleAuditTask.setStatus(AuditTaskStatusEnum.AUDITING.getValue());
+        peopleAuditTask.setAuditUserId(auditUserId);
+        peopleAuditTask.setAuditTime(new Date());
+        int updateFlag = taskMapper.updateByPrimaryKeySelective(peopleAuditTask);
+        if (updateFlag < 1){
+            return null;
+        }
+        return PeopleAuditTaskDto.convertFromEntity(peopleAuditTask);
+    }
+
+    private boolean needAudit(PeopleAuditTask peopleAuditTask){
+        if (ObjectUtil.isNull(peopleAuditTask)){
+            return false;
+        }
+        Integer status = peopleAuditTask.getStatus();
+        if (AuditTaskStatusEnum.DELETED.getValue().equals(status)){
+            return false;
+        }
+        if (AuditTaskStatusEnum.DISCARDED.getValue().equals(status)){
+            return false;
+        }
+        if (AuditTaskStatusEnum.AUDITED.getValue().equals(status)){
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 审核任务：
+     * 1. 校验是否在审核期内 切是本人领取到的审核
+     * 2. 查询 task是否存在
+     * 3. 计算policyTag转仲裁结果
+     * 4. 更新审核结果
+     * 5. 删除 redis auditing set中 taskId 删除失败没关系 mysql中已经变更 下一次领取 审核中的任务时会再次删除
+     * 6. redis key让他自然过期
+     * @param peopleAuditTaskDto
+     * @return
+     */
+    @Override
+    public PeopleAuditTaskDto auditTask(PeopleAuditTaskDto peopleAuditTaskDto) {
+        Long taskId = peopleAuditTaskDto.getId();
+        String taskRedisKey = PeopleConstant.PEOPLE_AUDIT_TASK_CACHE_KEY_PREFIX + taskId;
+        Long userId = (Long) redisUtil.get(taskRedisKey);
+        if (ObjectUtil.isNull(userId) ||
+                !userId.equals(peopleAuditTaskDto.getAuditUserId())){
+            throw new BusinessException(ErrorCode.PEOPLE_AUDIT_EXPIRE,
+                    ImmutableMap.of("peopleAuditTaskDto", peopleAuditTaskDto));
+        }
+
+        return null;
+    }
+
+    /**
+     * 仲裁
+     * @param tagList 标签
+     * @param policyId 仲裁Json
+     * @return auditResultJson
+     */
+    private String judgeAuditResult(List<Long> tagList, Long policyId){
+        return null;
+    }
+}

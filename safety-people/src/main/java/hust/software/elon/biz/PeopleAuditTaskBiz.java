@@ -12,6 +12,7 @@ import hust.software.elon.safety.middle.domain.SysUserRequest;
 import hust.software.elon.safety.middle.domain.SysUserResponse;
 import hust.software.elon.safety.middle.service.SysUserService;
 import hust.software.elon.service.PeopleAuditTaskService;
+import lombok.RequiredArgsConstructor;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +25,10 @@ import java.util.stream.Collectors;
  * @date 2022/4/27 14:47
  */
 @Service
+@RequiredArgsConstructor
 public class PeopleAuditTaskBiz{
-    private SysUserService.Iface sysUserService;
-    private PeopleAuditTaskService taskService;
+    private final SysUserService.Iface sysUserService;
+    private final PeopleAuditTaskService taskService;
 
     public List<PeopleAuditTaskDto> findTaskById(long id){
         List<PeopleAuditTaskDto> peopleAuditTaskDtoList = taskService.findTaskById(id);

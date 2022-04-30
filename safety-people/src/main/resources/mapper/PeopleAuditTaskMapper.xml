@@ -39,7 +39,7 @@
     -->
     update people_audit_task
     <set>
-      status  = 1
+      status  = 4
     </set>
     where id in
     <foreach collection="taskIds" item="taskId" index="index" open="(" close=")" separator=",">
@@ -55,7 +55,7 @@
     -->
     update people_audit_task
     <set>
-      status  = 1
+      status  = 4
     </set>
     where id in
     <foreach collection="objectIds" item="objectId" index="index" open="(" close=")" separator=",">
@@ -71,7 +71,7 @@
     -->
     update people_audit_task
     <set>
-      status  = 1
+      status  = 4
     </set>
     where queue_id = #{queueId,jdbcType=BIGINT} and status = 0
     <if test="virtualQueueId != null">
