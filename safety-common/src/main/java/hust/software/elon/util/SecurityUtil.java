@@ -8,6 +8,7 @@ import cn.hutool.core.util.RandomUtil;
  */
 public class SecurityUtil {
     public static Long getUser(){
-        return RandomUtil.randomLong(0, 2);
+//        return RandomUtil.randomLong(0, 2);
+        return 1L;
     }
 }

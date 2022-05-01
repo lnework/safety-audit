@@ -46,6 +46,12 @@ public class PeopleAuditPolicyController {
         return auditPolicyResponse;
     }
 
+    /**
+     * 测试创建policy judgeJson
+     * {"followerMap":{"politics":1,"abuse":6,"suicide":3,"black":5,"porn":4,"rumor":7,"repeat":8,"voiceprint":2,"bored":9},"sentinelMap":{"pass":10,"not_pass":1,"self_see":5,"not_recommend":8},"freeSet":["reason","red_song","transmit"]}
+     * @param request
+     * @return
+     */
     @PostMapping("/create")
     public PeopleAuditPolicyResponse createPolicy(@RequestBody PeopleAuditPolicyRequest request){
         AuditPolicyDto auditPolicyDto = AuditPolicyDto.convertFromRequest(request);

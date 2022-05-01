@@ -41,10 +41,10 @@ public class PeopleAuditQueueServiceImpl implements PeopleAuditQueueService {
 
     @Override
     public PeopleAuditQueueDto createQueue(PeopleAuditQueueDto queueDto) {
+        queueDto.setId(null);
+        queueDto.setCreateTime(new Date());
         PeopleAuditQueue peopleAuditQueue = new PeopleAuditQueue();
         BeanUtils.copyProperties(queueDto, peopleAuditQueue);
-//        防止创建的时候给定id
-        peopleAuditQueue.setId(null);
         int insertFlag = queueMapper.insertSelective(peopleAuditQueue);
         if (insertFlag < 1){
             throw new SystemException(ErrorCode.MYSQL_INSERT_ERROR, ImmutableMap.of("PeopleAuditQueueDto=", queueDto));
@@ -61,6 +61,8 @@ public class PeopleAuditQueueServiceImpl implements PeopleAuditQueueService {
                     ImmutableMap.of("queueId=", queueId, "userId=", userId));
         }
         peopleAuditQueue.setStatus(1);
+        peopleAuditQueue.setUpdateUserId(userId);
+        peopleAuditQueue.setUpdateTime(new Date());
         int updateFlag = queueMapper.updateByPrimaryKeySelective(peopleAuditQueue);
         if (updateFlag < 1){
             throw new SystemException(ErrorCode.MYSQL_UPDATE_ERROR,
@@ -79,8 +81,7 @@ public class PeopleAuditQueueServiceImpl implements PeopleAuditQueueService {
         peopleAuditQueue.setName(queueDto.getName());
         peopleAuditQueue.setDescription(queueDto.getDescription());
         peopleAuditQueue.setReviewCallback(queueDto.getReviewCallback());
-        peopleAuditQueue.setCmsPolicyId(queueDto.getCmsPolicyId());
-        peopleAuditQueue.setCmsJudgeId(queueDto.getCmsJudgeId());
+        peopleAuditQueue.setPolicyId(queueDto.getPolicyId());
         peopleAuditQueue.setObjectTemplateId(queueDto.getObjectTemplateId());
         peopleAuditQueue.setUpdateTime(new Date());
         peopleAuditQueue.setUpdateUserId(queueDto.getUpdateUserId());

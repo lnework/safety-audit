@@ -39,7 +39,7 @@
     select
     <include refid="Base_Column_List" />
     from audit_policy
-    where name like #{pattern}
+    where name like #{pattern} and status != 1
   </select>
 
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">

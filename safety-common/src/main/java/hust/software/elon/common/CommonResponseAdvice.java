@@ -28,7 +28,7 @@ public class CommonResponseAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         if (o == null){
-            return CommonResponse.create(null);
+            return CommonResponse.create(CommonResponse.STATUS_SUCCESS);
         }else if (o instanceof CommonResponse || o instanceof String){
             return o;
         }

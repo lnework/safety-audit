@@ -38,6 +38,7 @@ public class PeopleQueueController {
     @PostMapping("/create")
     public PeopleAuditQueueResponse createQueue(@RequestBody PeopleAuditQueueRequest request){
         PeopleAuditQueueDto peopleAuditQueueDto = PeopleAuditQueueDto.convertFromRequest(request);
+        peopleAuditQueueDto.setCreateUserId(SecurityUtil.getUser());
         peopleAuditQueueDto = peopleAuditQueueService.createQueue(peopleAuditQueueDto);
         return PeopleAuditQueueResponse.convertFromDto(peopleAuditQueueDto);
     }
@@ -45,6 +46,7 @@ public class PeopleQueueController {
     @PostMapping("/update")
     public PeopleAuditQueueResponse updateQueue(@RequestBody PeopleAuditQueueRequest request){
         PeopleAuditQueueDto peopleAuditQueueDto = PeopleAuditQueueDto.convertFromRequest(request);
+        peopleAuditQueueDto.setUpdateUserId(SecurityUtil.getUser());
         peopleAuditQueueDto = peopleAuditQueueService.updateQueue(peopleAuditQueueDto);
         return PeopleAuditQueueResponse.convertFromDto(peopleAuditQueueDto);
     }

@@ -36,9 +36,7 @@ public class PeopleAuditQueueRequest {
 
     private String reviewCallback;
 
-    private Long cmsPolicyId;
-
-    private Long cmsJudgeId;
+    private Long policyId;
 
     private Long objectTemplateId;
 }

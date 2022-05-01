@@ -28,6 +28,8 @@ public class PeopleAuditTagServiceImpl implements PeopleAuditTagService {
 
     @Override
     public AuditTagDto addTag(AuditTagDto auditTagDto) {
+        auditTagDto.setId(null);
+        auditTagDto.setCreateTime(new Date());
         AuditTag auditTag = convertFromDto(auditTagDto);
         int insertFlag = tagMapper.insertSelective(auditTag);
         if (insertFlag < 1){
@@ -56,7 +58,7 @@ public class PeopleAuditTagServiceImpl implements PeopleAuditTagService {
             throw new SystemException(ErrorCode.MYSQL_UPDATE_ERROR,
                     ImmutableMap.of("auditTag", auditTag));
         }
-        return auditTagDto;
+        return AuditTagDto.convertFromEntity(auditTag);
     }
 
     @Override
@@ -73,12 +75,14 @@ public class PeopleAuditTagServiceImpl implements PeopleAuditTagService {
     }
 
     @Override
-    public AuditTagDto deleteTag(Long id) {
+    public AuditTagDto deleteTag(Long id, Long userId) {
         AuditTag auditTag = tagMapper.selectByPrimaryKey(id);
         if (ObjectUtil.isNull(auditTag)){
             throw new BusinessException(ErrorCode.PEOPLE_TAG_NOT_EXIST,
                     ImmutableMap.of("auditTagId", id));
         }
+        auditTag.setUpdateUserId(userId);
+        auditTag.setUpdateTime(new Date());
         auditTag.setStatus(1);
         int updateFlag = tagMapper.updateByPrimaryKey(auditTag);
         if (updateFlag < 0){

@@ -18,5 +18,5 @@ public interface PeopleAuditTagService {
 
     AuditTagDto findTagById(Long id);
 
-    AuditTagDto deleteTag(Long id);
+    AuditTagDto deleteTag(Long id, Long userId);
 }

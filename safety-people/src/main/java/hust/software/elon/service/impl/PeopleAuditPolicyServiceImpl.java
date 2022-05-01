@@ -43,7 +43,7 @@ public class PeopleAuditPolicyServiceImpl implements PeopleAuditPolicyService {
     @Override
     public AuditPolicyDto createPolicy(AuditPolicyDto auditPolicyDto) {
         AuditPolicy auditPolicy = new AuditPolicy();
-        BeanUtils.copyProperties(auditPolicy, auditPolicyDto);
+        BeanUtils.copyProperties(auditPolicyDto, auditPolicy);
         auditPolicy.setCreateTime(new Date());
         int insertFlag = auditPolicyMapper.insertSelective(auditPolicy);
         if (insertFlag < 1){

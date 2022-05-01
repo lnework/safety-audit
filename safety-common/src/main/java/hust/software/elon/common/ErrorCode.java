@@ -27,7 +27,7 @@ public enum ErrorCode {
     MYSQL_UPDATE_ERROR(202, HttpStatus.INTERNAL_SERVER_ERROR, "mysql更新失败"),
 
     REDIS_INSERT_ERROR(301, HttpStatus.INTERNAL_SERVER_ERROR, "redis插入失败"),
-
+    REDIS_DELETE_ERROR(302, HttpStatus.INTERNAL_SERVER_ERROR, "redis删除失败"),
     /**
      * 四位数 业务异常
      * 11 用户
@@ -37,7 +37,7 @@ public enum ErrorCode {
      * 23 风险服务
      * 31 人审队列
      */
-    USER_EXCEPTION(1000, null, "用户通用异常"),
+    USER_EXCEPTION(1000, HttpStatus.BAD_REQUEST, "用户通用异常"),
 
     File_NOT_SAVE_DISK(2001, HttpStatus.INTERNAL_SERVER_ERROR, "文件存储失败"),
     File_NOT_SAVE(2002, HttpStatus.BAD_REQUEST, "上传文件失败"),
@@ -58,10 +58,11 @@ public enum ErrorCode {
     RISK_SENSITIVE_WORD_AREADY_DELETE(2312, HttpStatus.BAD_REQUEST, "敏感词已被删除"),
 
     PEOPLE_QUEUE_(3100, null, ""),
-    PEOPLE_QUEUE_NOT_EXIST(3101, null, "人审队列不存在"),
-    PEOPLE_TAG_NOT_EXIST(3111, null, "审核标签不存在"),
-    PEOPLE_POLICY_NOT_EXIST(3121, null, "审核Policy不存在"),
-    PEOPLE_AUDIT_EXPIRE(3131, null, "审核限时5分钟，已超时"),
+    PEOPLE_QUEUE_NOT_EXIST(3101, HttpStatus.BAD_REQUEST, "人审队列不存在"),
+    PEOPLE_TAG_NOT_EXIST(3111, HttpStatus.BAD_REQUEST, "审核标签不存在"),
+    PEOPLE_POLICY_NOT_EXIST(3121, HttpStatus.BAD_REQUEST, "审核Policy不存在"),
+    PEOPLE_AUDIT_EXPIRE(3131, HttpStatus.BAD_REQUEST, "审核限时5分钟，已超时"),
+    PEOPLE_TASK_NOT_NEED_AUDIT(3132, HttpStatus.BAD_REQUEST, "任务无须审核"),
 
 
 

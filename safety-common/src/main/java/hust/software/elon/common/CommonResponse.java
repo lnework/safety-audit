@@ -8,14 +8,14 @@ import lombok.Data;
  */
 @Data
 public class CommonResponse {
-    public static final String STATUS_SUCCESS = "success";
-    public static final String STATUS_FAIL = "fail";
+    public static final int STATUS_SUCCESS = 0;
+    public static final int STATUS_FAIL = 1;
 
-    private String status;
+    private Integer status;
     private Object data;
 
 
-    public static  CommonResponse create(String status){
+    public static  CommonResponse create(Integer status){
         CommonResponse commonResponse = new CommonResponse();
         commonResponse.setStatus(status);
         return commonResponse;
@@ -26,7 +26,7 @@ public class CommonResponse {
         return create(data, STATUS_SUCCESS);
     }
 
-    public static CommonResponse create(Object data, String status){
+    public static CommonResponse create(Object data, Integer status){
         CommonResponse commonResponse = new CommonResponse();
         commonResponse.setData(data);
         commonResponse.setStatus(status);

@@ -27,6 +27,7 @@ public class PeopleAuditTagController {
         return PeopleAuditTagResponse.convertFromDto(auditTagDto);
     }
 
+//    人审审核的时候调取可选择的标签会用到
     @GetMapping("/find-list")
     public List<PeopleAuditTagResponse> findByIds(@RequestParam List<Long> ids){
         List<AuditTagDto> auditTagDtoList = tagService.findTagByIds(ids);
@@ -34,8 +35,8 @@ public class PeopleAuditTagController {
                 .map(PeopleAuditTagResponse::convertFromDto).collect(Collectors.toList());
     }
 
-    @PostMapping("/add")
-    public PeopleAuditTagResponse addTag(@RequestBody PeopleAuditTagRequest request){
+    @PostMapping("/create")
+    public PeopleAuditTagResponse createTag(@RequestBody PeopleAuditTagRequest request){
         AuditTagDto auditTagDto = AuditTagDto.convertFromRequest(request);
         auditTagDto.setCreateUserId(SecurityUtil.getUser());
         auditTagDto = tagService.addTag(auditTagDto);
@@ -45,13 +46,15 @@ public class PeopleAuditTagController {
     @PostMapping("/update")
     public PeopleAuditTagResponse updateTag(@RequestBody PeopleAuditTagRequest request){
         AuditTagDto auditTagDto = AuditTagDto.convertFromRequest(request);
+        auditTagDto.setUpdateUserId(SecurityUtil.getUser());
         auditTagDto = tagService.updateTag(auditTagDto);
         return PeopleAuditTagResponse.convertFromDto(auditTagDto);
     }
 
     @PostMapping("/delete")
     public PeopleAuditTagResponse deleteTag(@RequestParam Long id){
-        AuditTagDto auditTagDto = tagService.deleteTag(id);
+        Long userId = SecurityUtil.getUser();
+        AuditTagDto auditTagDto = tagService.deleteTag(id, userId);
         return PeopleAuditTagResponse.convertFromDto(auditTagDto);
     }
 }

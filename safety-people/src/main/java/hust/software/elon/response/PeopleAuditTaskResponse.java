@@ -1,5 +1,6 @@
 package hust.software.elon.response;
 
+import cn.hutool.core.util.ObjectUtil;
 import hust.software.elon.dto.PeopleAuditTaskDto;
 import hust.software.elon.safety.people.domain.CreateType;
 import lombok.AllArgsConstructor;
@@ -40,7 +41,7 @@ public class PeopleAuditTaskResponse {
 
     private String auditTag;
 
-    private List<String> auditTagList;
+    private List<Long> auditTagList;
 
     private String auditResultJson;
 
@@ -51,6 +52,9 @@ public class PeopleAuditTaskResponse {
     private String auditUserName;
 
     public static PeopleAuditTaskResponse convertFromDto(PeopleAuditTaskDto peopleAuditTaskDto){
+        if (ObjectUtil.isNull(peopleAuditTaskDto)){
+            return null;
+        }
         PeopleAuditTaskResponse peopleAuditTaskResponse = new PeopleAuditTaskResponse();
         BeanUtils.copyProperties(peopleAuditTaskDto, peopleAuditTaskResponse);
         return peopleAuditTaskResponse;

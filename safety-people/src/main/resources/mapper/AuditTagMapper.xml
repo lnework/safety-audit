@@ -35,10 +35,11 @@
     select
     <include refid="Base_Column_List" />
     from audit_tag
-    where id in
+    where status != 1 and id in
     <foreach collection="tagIds" item="tag_id" index="index" open="(" close=")" separator=",">
       #{tag_id}
     </foreach>
+
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -49,7 +50,7 @@
     select 
     <include refid="Base_Column_List" />
     from audit_tag
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT} and status != 1
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     <!--

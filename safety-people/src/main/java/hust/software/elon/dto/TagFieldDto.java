@@ -4,15 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 /**
  * @author elon
- * @date 2022/4/27 17:07
+ * @date 2022/4/30 20:19
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class JudgeFieldDto {
-    private String field;
-    private int sentinelPriority;
-    private int fieldPriority;
+public class TagFieldDto {
+    private String sentinel;
+    private Map<String, Object> field2value;
 }

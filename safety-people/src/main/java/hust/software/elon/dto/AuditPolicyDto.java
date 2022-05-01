@@ -2,12 +2,14 @@ package hust.software.elon.dto;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import hust.software.elon.domain.AuditPolicy;
 import hust.software.elon.request.PeopleAuditPolicyRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -86,7 +88,7 @@ public class AuditPolicyDto {
 
     public void setTagIds(String tagIds) {
         this.tagIds = tagIds;
-        this.tagIdList = Arrays.stream(tagIds.split(SPLIT_FLAG))
+        this.tagIdList = Arrays.stream(StrUtil.split(tagIds, SPLIT_FLAG))
                 .map(Long::valueOf).collect(Collectors.toList());
     }
 

@@ -41,6 +41,7 @@ public class PeopleServiceImpl implements PeopleService.Iface {
 
     private final RedisUtil redisUtil;
 
+//    TODO 暂时未作创建方式 目前都是强制创建
     @Override
     public SendPeopleQueueResponse sendToPeopleQueue(SendPeopleQueueRequest req) throws TException {
         PeopleAuditTaskDto peopleAuditTaskDto = new PeopleAuditTaskDto();

@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author elon
@@ -14,12 +16,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuditJudgeDto {
-//    哨兵回调字段
-    private List<JudgeFieldDto> sentinelList;
+    public static final String SENTINEL_KEY = "audit_result";
 
-//    优先级必须比sentinel低才能生效
-    private List<JudgeFieldDto> followerList;
+//    哨兵回调字段
+    private Map<String, Integer> sentinelMap;
+
+//    优先级字段
+    private Map<String, Integer> followerMap;
 
 //    只要有参数就会生效
-    private List<JudgeFieldDto> freeList;
+    private Set<String> freeSet;
 }

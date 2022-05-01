@@ -36,9 +36,9 @@ public class PeopleAuditTaskRequest {
 
     private Integer status;
 
-    private String auditTag;
+//    private String auditTag;
 
-    private List<String> auditTagList;
+    private List<Long> auditTagList;
 
     private String auditResultJson;
 

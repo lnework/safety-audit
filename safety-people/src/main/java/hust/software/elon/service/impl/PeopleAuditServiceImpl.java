@@ -2,25 +2,34 @@ package hust.software.elon.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.google.common.collect.ImmutableMap;
 import hust.software.elon.common.ErrorCode;
 import hust.software.elon.common.PeopleConstant;
 import hust.software.elon.common.enums.AuditTaskStatusEnum;
 import hust.software.elon.domain.AuditPolicy;
+import hust.software.elon.domain.AuditTag;
+import hust.software.elon.domain.PeopleAuditQueue;
 import hust.software.elon.domain.PeopleAuditTask;
+import hust.software.elon.dto.AuditJudgeDto;
+import hust.software.elon.dto.JudgeFieldDto;
 import hust.software.elon.dto.PeopleAuditTaskDto;
+import hust.software.elon.dto.TagFieldDto;
 import hust.software.elon.exception.BusinessException;
+import hust.software.elon.exception.SystemException;
 import hust.software.elon.mapper.AuditPolicyMapper;
 import hust.software.elon.mapper.AuditTagMapper;
+import hust.software.elon.mapper.PeopleAuditQueueMapper;
 import hust.software.elon.mapper.PeopleAuditTaskMapper;
 import hust.software.elon.service.PeopleAuditService;
 import hust.software.elon.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author elon
@@ -32,6 +41,7 @@ public class PeopleAuditServiceImpl implements PeopleAuditService {
     private final RedisUtil redisUtil;
 
     private final PeopleAuditTaskMapper taskMapper;
+    private final PeopleAuditQueueMapper queueMapper;
     private final AuditTagMapper tagMapper;
     private final AuditPolicyMapper policyMapper;
 
@@ -158,17 +168,89 @@ public class PeopleAuditServiceImpl implements PeopleAuditService {
             throw new BusinessException(ErrorCode.PEOPLE_AUDIT_EXPIRE,
                     ImmutableMap.of("peopleAuditTaskDto", peopleAuditTaskDto));
         }
-
-        return null;
+        PeopleAuditTask peopleAuditTask = taskMapper.selectByPrimaryKey(peopleAuditTaskDto.getId());
+        if (!needAudit(peopleAuditTask)){
+            throw new BusinessException(ErrorCode.PEOPLE_TASK_NOT_NEED_AUDIT,
+                    ImmutableMap.of("peopleAuditTask", peopleAuditTask));
+        }
+        peopleAuditTask.setStatus(AuditTaskStatusEnum.AUDITED.getValue());
+        peopleAuditTask.setAuditTag(peopleAuditTaskDto.getAuditTag());
+        peopleAuditTask.setAuditTime(new Date());
+        PeopleAuditQueue auditQueue = queueMapper.selectByPrimaryKey(peopleAuditTask.getQueueId());
+        String auditResultJson = judgeAuditTag(peopleAuditTaskDto.getAuditTagList(), auditQueue.getPolicyId());
+        peopleAuditTask.setAuditResultJson(auditResultJson);
+        int updateFlag = taskMapper.updateByPrimaryKeySelective(peopleAuditTask);
+        if (updateFlag < 1){
+            throw new SystemException(ErrorCode.MYSQL_UPDATE_ERROR,
+                    ImmutableMap.of("peopleAuditTask", peopleAuditTask));
+        }
+        String peopleAuditingSetRedisKey = PeopleConstant.PEOPLE_AUDITING_TASK_QUEUE_CACHE_KEY_PREFIX + peopleAuditTask.getQueueId();
+        long redisDelFlag = redisUtil.setRemove(peopleAuditingSetRedisKey, peopleAuditTask.getId());
+        if (redisDelFlag < 1){
+            throw new SystemException(ErrorCode.REDIS_DELETE_ERROR,
+                    ImmutableMap.of("peopleAuditingSetRedisKey", peopleAuditingSetRedisKey, "peopleAuditTask", peopleAuditTask));
+        }
+//        发送写回调没写
+        return PeopleAuditTaskDto.convertFromEntity(peopleAuditTask);
     }
 
     /**
      * 仲裁
-     * @param tagList 标签
+     * @param tagIdList 标签
      * @param policyId 仲裁Json
      * @return auditResultJson
      */
-    private String judgeAuditResult(List<Long> tagList, Long policyId){
-        return null;
+    private String judgeAuditTag(List<Long> tagIdList, Long policyId){
+        Map<String, Object> followerResult = new HashMap<>();
+        Map<String, Object> freeResult = new HashMap<>();
+        AuditPolicy auditPolicy = policyMapper.selectByPrimaryKey(policyId);
+
+        AuditJudgeDto auditJudgeDto = JSONUtil.toBean(auditPolicy.getJudgeJson(), AuditJudgeDto.class);
+
+        List<Map<String, Object>> tagFieldMapList = tagMapper.selectByIds(tagIdList).stream().map(AuditTag::getAuditResultJson)
+                .map(auditResult-> {
+                    Map<String, Object> tagFieldMap = JSONUtil.toBean(auditResult, Map.class);
+                    return tagFieldMap;
+                }).collect(Collectors.toList());
+        int sentinelMaxPriority = Integer.MAX_VALUE-1;
+        String sentinelResult = "";
+        for (Map<String, Object> tagFieldMap: tagFieldMapList){
+            String sentinel = (String) tagFieldMap.get(AuditJudgeDto.SENTINEL_KEY);
+            int priority = auditJudgeDto.getSentinelMap().getOrDefault(sentinel, Integer.MAX_VALUE);
+            if (sentinelMaxPriority > priority){
+                sentinelMaxPriority = priority;
+                sentinelResult = sentinel;
+            }
+        }
+//        把字段塞进去
+        int fieldMaxPriority = Integer.MAX_VALUE - 1;
+
+        for (Map<String, Object> tagFieldMap: tagFieldMapList){
+            String sentinel = (String) tagFieldMap.get(AuditJudgeDto.SENTINEL_KEY);
+            if (auditJudgeDto.getSentinelMap().getOrDefault(sentinel, Integer.MAX_VALUE) <= sentinelMaxPriority){
+                for(Map.Entry<String, Object> entry: tagFieldMap.entrySet()){
+//                    无条件字段直接放入
+                    if (auditJudgeDto.getFreeSet().contains(entry.getKey())){
+                        freeResult.put(entry.getKey(), entry.getValue());
+//                        有条件字段，比较优先级后放入
+                    }else{
+                        int fieldPriority = auditJudgeDto.getFollowerMap().getOrDefault(entry.getKey(), Integer.MAX_VALUE);
+                        if (fieldPriority > fieldMaxPriority){
+                            continue;
+                        }
+                        if (fieldPriority < fieldMaxPriority){
+                            fieldMaxPriority = fieldPriority;
+                            followerResult.clear();
+                        }
+                        followerResult.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.putAll(freeResult);
+        result.putAll(followerResult);
+        result.put(AuditJudgeDto.SENTINEL_KEY, sentinelResult);
+        return JSONUtil.toJsonStr(result);
     }
 }

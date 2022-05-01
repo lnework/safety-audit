@@ -6,13 +6,13 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author elon
- * @date 2022/4/27 17:07
+ * @date 2022/4/30 19:55
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class JudgeFieldDto {
+public class FollowerFieldDto {
     private String field;
-    private int sentinelPriority;
-    private int fieldPriority;
+    private int priority;
+    private String sentinelField;
 }
