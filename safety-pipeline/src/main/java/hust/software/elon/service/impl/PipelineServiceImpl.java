@@ -31,7 +31,6 @@ public class PipelineServiceImpl implements PipelineService.Iface {
      * 1. 参数是否规范
      * 2. 检查configKey的qps是否符合要求
      * 3. 发送kafka消息
-     * 4. TODO JSONUtil.getByPath() 可以直接拿到
      * @param req
      * @return
      * @throws TException

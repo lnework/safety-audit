@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QueueResultDto {
+    ActualQueueResultDto actualQueueResultDto;
     SendPeopleQueueRequest sendPeopleQueueRequest;
     SendPeopleQueueResponse sendPeopleQueueResponse;
 }

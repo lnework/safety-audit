@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RiskModelConfigDto {
+public class RiskModelConfigDto implements Serializable {
     private Long id;
     private String modelKey;
 
@@ -31,5 +32,5 @@ public class RiskModelConfigDto {
     private Double score;
     private List<String> tags;
 //     多余透传给模型方的数据字段
-    private Map<String, String> extraJson;
+    private Map<String, Object> extraJson;
 }

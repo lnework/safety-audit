@@ -17,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class RiskModelResultDto {
     private String outputName;
+//    自己包装的风险服务分数
     private double riskScore;
     private List<String> tags;
     private boolean hitModel;

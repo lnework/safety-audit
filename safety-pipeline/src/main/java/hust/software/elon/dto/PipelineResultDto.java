@@ -36,7 +36,7 @@ public class PipelineResultDto {
 //    命中的tags
     private Set<String> tags;
 
-    private List<RiskModelResultDto> riskModelResultDtoList;
+    private Map<String, RiskModelResultDto> riskModelResultDtoMap;
 
     private List<QueueResultDto> queueResultDtoList;
 

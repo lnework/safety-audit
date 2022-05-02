@@ -1,5 +1,6 @@
 package hust.software.elon.controller;
 
+import hust.software.elon.domain.PipelineMessage;
 import hust.software.elon.safety.people.domain.SendPeopleQueueRequest;
 import hust.software.elon.safety.people.domain.SendPeopleQueueResponse;
 import hust.software.elon.safety.people.service.PeopleService;
@@ -46,5 +47,10 @@ public class TestController {
     @RequestMapping("/kafka/send")
     public void testSendKafkaMessage(@RequestBody SendPipelineRequest request) throws TException {
         pipelineService.sendToPipeline(request);
+    }
+
+    @RequestMapping("/streamline")
+    public void testStreamline(@RequestBody PipelineMessage request){
+        streamlineService.consumePipelineMessage(request);
     }
 }

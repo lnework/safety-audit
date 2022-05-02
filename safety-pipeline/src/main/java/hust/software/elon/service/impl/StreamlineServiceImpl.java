@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
@@ -67,29 +68,40 @@ public class StreamlineServiceImpl implements StreamlineService {
     public static final String FATAL_REASON = "fatal";
 
 
+    /**
+     * pipeline真实处理流程
+     * 1. 当发生异常时 重试3次
+     * @param pipelineMessage
+     */
     @Override
-    @KafkaListener(topics = "safety_audit_pipeline_x",
-            groupId = "group_" + "safety_audit_pipeline_x")
+    @KafkaListener(topics = "safety_audit_pipeline_z",
+            groupId = "group_" + "safety_audit_pipeline_z")
     public void consumePipelineMessage(PipelineMessage pipelineMessage) {
         PipelineResultDto pipelineResultDto = null;
+        PipelineAuditConfigDto safetyAuditConfigDto = getAuditConfig(pipelineMessage.getConfigKey());
+//        为空的应该早就过滤
+        assert safetyAuditConfigDto != null;
         for(int i=0;i<RETRY_TIME;i++){
-            pipelineResultDto = dealStreamline(pipelineMessage);
+            pipelineResultDto = dealStreamline(pipelineMessage, safetyAuditConfigDto);
 //            保存审核结果
             savePipelineResult(pipelineResultDto);
-        }
-//        送到fatal队列
-        if (ObjectUtil.isNull(pipelineResultDto)|| pipelineResultDto.getFatalFlag()){
-            SendPeopleQueueRequest sendPeopleQueueRequest = new SendPeopleQueueRequest();
-            sendPeopleQueueRequest.setCreateType(CreateType.ForceCreate);
-            sendPeopleQueueRequest.setObjectId(pipelineMessage.getObjectId());
-            sendPeopleQueueRequest.setQueueId(pipelineResultDto.getPipelineId());
-            sendPeopleQueueRequest.setReason(FATAL_REASON);
-            try {
-                SendPeopleQueueResponse sendPeopleQueueResponse = peopleService.sendToPeopleQueue(sendPeopleQueueRequest);
-            }catch (TException e){
-
+//            没有发生异常
+            if (ObjectUtil.isNull(pipelineResultDto.getException())){
+                return;
             }
         }
+//        当尝试多次仍然失败-送到fatal队列
+        SendPeopleQueueRequest sendPeopleQueueRequest = new SendPeopleQueueRequest();
+        sendPeopleQueueRequest.setCreateType(CreateType.ForceCreate);
+        sendPeopleQueueRequest.setObjectId(pipelineMessage.getObjectId());
+        sendPeopleQueueRequest.setQueueId(safetyAuditConfigDto.getFatalQueueId());
+        sendPeopleQueueRequest.setObjectDataJson(JSONUtil.toJsonStr(pipelineResultDto));
+        sendPeopleQueueRequest.setReason(FATAL_REASON);
+        try {
+            SendPeopleQueueResponse sendPeopleQueueResponse = peopleService.sendToPeopleQueue(sendPeopleQueueRequest);
+        }catch (TException e){
+        }
+
     }
 
     /**
@@ -100,29 +112,32 @@ public class StreamlineServiceImpl implements StreamlineService {
      * 4.虚队列分流实队列
      */
 
-    public PipelineResultDto dealStreamline(PipelineMessage pipelineMessage) {
-        PipelineAuditConfigDto safetyAuditConfigDto = getAuditConfig(pipelineMessage.getConfigKey());
-
-        if (ObjectUtil.isNull(safetyAuditConfigDto)){
-            return null;
-        }
+    public PipelineResultDto dealStreamline(PipelineMessage pipelineMessage, PipelineAuditConfigDto safetyAuditConfigDto) {
         PipelineResultDto pipelineResultDto = new PipelineResultDto();
-        pipelineResultDto.setConfigKey(safetyAuditConfigDto.getConfigKey());
-        pipelineResultDto.setPipelineMessage(pipelineMessage);
-        String dealId = generatePipelineDealId(pipelineMessage.getObjectId(), pipelineResultDto.getPipelineId());
+        if (ObjectUtil.isNull(pipelineMessage) || ObjectUtil.isNull(safetyAuditConfigDto)){
+            return pipelineResultDto;
+        }
+        String dealId = generatePipelineDealId(pipelineMessage.getObjectId(), safetyAuditConfigDto.getId());
         pipelineResultDto.setDealId(dealId);
-        pipelineResultDto.setAuditTime(new Date());
+        pipelineResultDto.setPipelineMessage(pipelineMessage);
 //        TODO 未设置feature
+//        设置pipelineId便于知道是以哪个版本进行操作的
+        pipelineResultDto.setPipelineId(safetyAuditConfigDto.getId());
+        pipelineResultDto.setConfigKey(safetyAuditConfigDto.getConfigKey());
+        pipelineResultDto.setAuditTime(new Date());
         Map<String, Object> pipelineContext = new HashMap<>();
+        pipelineResultDto.setContext(pipelineContext);
 
         Set<String> tagSet = new HashSet<>();
-        List<RiskModelResultDto> riskModelResultDtoList = new ArrayList<>(16);
+        Map<String, RiskModelResultDto> riskModelResultDtoMap = new HashMap<>();
+
+
         try {
             //        调用风险服务
             for (RiskModelConfigDto riskModelConfigDto: safetyAuditConfigDto.getRiskModelConfigDtoList()){
                 RiskModelResultDto riskModelResultDto = sendToReviewRisk(riskModelConfigDto, pipelineMessage);
                 tagSet.addAll(riskModelResultDto.getTags());
-                riskModelResultDtoList.add(riskModelResultDto);
+                riskModelResultDtoMap.put(riskModelResultDto.getOutputName(), riskModelResultDto);
 //            设置命中则结束 可节约后续模型资源
                 if (riskModelResultDto.isFinish()){
                     break;
@@ -132,13 +147,14 @@ public class StreamlineServiceImpl implements StreamlineService {
             pipelineResultDto.setException(e);
             return pipelineResultDto;
         }
-
-        pipelineContext.put(RISK_MODEL_OUTPUT_NAME, riskModelResultDtoList);
+        pipelineContext.put(RISK_MODEL_OUTPUT_NAME, riskModelResultDtoMap);
         pipelineContext.put(TAGS_OUTPUT_NAME, tagSet);
-        pipelineResultDto.setRiskModelResultDtoList(riskModelResultDtoList);
+        pipelineResultDto.setRiskModelResultDtoMap(riskModelResultDtoMap);
+
+
 //        人审队列
-        JSONObject pipelineJsonObject = JSONUtil.parseObj(pipelineContext);
-        List<QueueResultDto> queueResultDtoList = new ArrayList<>(16);
+        JSONObject pipelineJsonObject = JSONUtil.parseObj(pipelineResultDto);
+        Map<String, QueueResultDto> queueResultDtoMap = new HashMap<>(15);
         try {
             for (VirtualQueueConfigDto virtualQueueConfigDto: safetyAuditConfigDto.getVirtualQueueConfigDtoList()){
                 ActualQueueResultDto actualQueueResultDto = getActualQueueResult(pipelineMessage.getObjectId(), tagSet, virtualQueueConfigDto, pipelineJsonObject);
@@ -149,14 +165,14 @@ public class StreamlineServiceImpl implements StreamlineService {
                 pipelineContext.put(virtualQueueConfigDto.getVirtualQueueId(), actualQueueResultDto);
                 SendPeopleQueueRequest sendPeopleQueueRequest = convertQueueRequestFromResult(actualQueueResultDto);
                 SendPeopleQueueResponse sendPeopleQueueResponse = peopleService.sendToPeopleQueue(sendPeopleQueueRequest);
-                queueResultDtoList.add(new QueueResultDto(sendPeopleQueueRequest, sendPeopleQueueResponse));
+                QueueResultDto queueResultDto = new QueueResultDto(actualQueueResultDto, sendPeopleQueueRequest, sendPeopleQueueResponse);
+                queueResultDtoMap.put(virtualQueueConfigDto.getVirtualQueueId(), queueResultDto);
             }
         }catch (Exception e){
             pipelineResultDto.setException(e);
             return pipelineResultDto;
         }
-        pipelineContext.put(SEND_TO_QUEUE, queueResultDtoList);
-        pipelineResultDto.setContext(pipelineContext);
+        pipelineContext.put(SEND_TO_QUEUE, queueResultDtoMap);
         return pipelineResultDto;
     }
 
@@ -175,7 +191,7 @@ public class StreamlineServiceImpl implements StreamlineService {
         Collection<String> intersectionTags = CollectionUtil.intersection(virtualQueueConfigDto.getTags(), tagSet);
         String reason = CollectionUtil.join(intersectionTags, REASON_SEPARATOR);
         //        选择实际队列
-        ActualQueueConfigDto actualQueueConfigDto = getShuntActualQueue(virtualQueueConfigDto);
+        ActualQueueConfigDto actualQueueConfigDto = getShuntActualQueue(objectId, virtualQueueConfigDto);
         if (ObjectUtil.isNull(actualQueueConfigDto)){
             return null;
         }
@@ -183,7 +199,7 @@ public class StreamlineServiceImpl implements StreamlineService {
         ActualQueueResultDto actualQueueResultDto = new ActualQueueResultDto();
         actualQueueResultDto.setObjectId(objectId);
         actualQueueResultDto.setQueueId(actualQueueConfigDto.getId());
-        actualQueueConfigDto.setCreateType(actualQueueConfigDto.getCreateType());
+        actualQueueResultDto.setCreateType(actualQueueConfigDto.getCreateType());
         actualQueueResultDto.setTags(new HashSet<>(intersectionTags));
         actualQueueResultDto.setReason(reason);
         actualQueueResultDto.setVirtualQueueId(virtualQueueConfigDto.getVirtualQueueId());
@@ -200,7 +216,7 @@ public class StreamlineServiceImpl implements StreamlineService {
     }
 
 //    TODO 未实现时长 时长默认先流转到最后一个队列
-    private ActualQueueConfigDto getShuntActualQueue(VirtualQueueConfigDto virtualQueueConfigDto){
+    private ActualQueueConfigDto getShuntActualQueue(long objectId, VirtualQueueConfigDto virtualQueueConfigDto){
         if (CollectionUtil.isEmpty(virtualQueueConfigDto.getActualQueueConfigDtoList())){
             return null;
         }
@@ -209,7 +225,7 @@ public class StreamlineServiceImpl implements StreamlineService {
                 .get(virtualQueueConfigDto.getActualQueueConfigDtoList().size()-1);
 //        百分比
         if (ShuntMode.WEIGHT_SHUNT == virtualQueueConfigDto.getShuntMode()){
-            int index = RandomUtil.randomInt(0, SHUNT_PERCENTAGE);
+            int index =  (int) objectId % SHUNT_PERCENTAGE;
             int total = 0;
             for (ActualQueueConfigDto actualQueueConfig: virtualQueueConfigDto.getActualQueueConfigDtoList()){
                 total += actualQueueConfig.getWeight();
@@ -223,7 +239,7 @@ public class StreamlineServiceImpl implements StreamlineService {
     }
 
     private void savePipelineResult(PipelineResultDto pipelineResultDto){
-
+        log.info("savePipelineResult = {}", JSONUtil.toJsonStr(pipelineResultDto));
     }
 
     private String generatePipelineDealId(Long objectId, Long pipelineId){
@@ -231,7 +247,16 @@ public class StreamlineServiceImpl implements StreamlineService {
         return timePrefix + objectId + pipelineId;
     }
 
-//    机审模型
+
+    /**
+     * 调用机审核模型：
+     * 1. 包装参数送审 其中发送模型的extra中参数 来源于 发送到pipeline message中extra中取 暂不支持特征中取
+     * 2.
+     * @param riskModelConfigDto
+     * @param pipelineMessage
+     * @return
+     * @throws TException
+     */
     private RiskModelResultDto sendToReviewRisk(RiskModelConfigDto riskModelConfigDto, PipelineMessage pipelineMessage) throws TException {
         SendReviewRiskRequest sendReviewRiskRequest = new SendReviewRiskRequest();
         sendReviewRiskRequest.setObjectId(pipelineMessage.getObjectId());
@@ -241,25 +266,29 @@ public class StreamlineServiceImpl implements StreamlineService {
         sendReviewRiskRequest.setForceNotCache(false);
 
         Map<String, Object> reviewRequestExtraMap = new HashMap<>();
-        for(Map.Entry<String, String> entry: riskModelConfigDto.getExtraJson().entrySet()){
-            reviewRequestExtraMap.put(entry.getKey(), getFromJson(pipelineMessage.getExtraJson(), entry.getValue()));
+        for(Map.Entry<String, Object> entry: riskModelConfigDto.getExtraJson().entrySet()){
+            if (StrUtil.startWith(entry.getValue().toString(), "$")){
+                String path = StrUtil.removeAll(entry.getValue().toString(), '$');
+                reviewRequestExtraMap.put(entry.getKey(), getFromJson(pipelineMessage.getExtraJson(), path));
+            }else{
+                reviewRequestExtraMap.put(entry.getKey(), entry.getValue());
+            }
+
         }
         sendReviewRiskRequest.setExtraJson(JSONUtil.toJsonStr(reviewRequestExtraMap));
         SendReviewRiskResponse sendReviewRiskResponse = riskService.sendToReviewRisk(sendReviewRiskRequest);
-
 
         RiskModelResultDto riskModelResultDto = new RiskModelResultDto();
         riskModelResultDto.setSendReviewRiskRequest(sendReviewRiskRequest);
 
         riskModelResultDto.setOutputName(riskModelConfigDto.getOutputName());
-        riskModelResultDto.setRiskScore(sendReviewRiskResponse.getRiskScore());
 
+        riskModelResultDto.setRiskScore(sendReviewRiskResponse.getRiskScore());
 
         if (riskModelConfigDto.getSubmitQueueThreshold() < 0){
             riskModelResultDto.setHitModel(sendReviewRiskResponse.isHitModel());
-
         }else{
-            riskModelResultDto.setHitModel(sendReviewRiskResponse.getModelScore() < riskModelConfigDto.getSubmitQueueThreshold());
+            riskModelResultDto.setHitModel(sendReviewRiskResponse.getRiskScore() >= riskModelConfigDto.getSubmitQueueThreshold());
         }
 //        命中模型打标签和结束
         if (riskModelResultDto.isHitModel()){
@@ -271,11 +300,10 @@ public class StreamlineServiceImpl implements StreamlineService {
             riskModelResultDto.setHitAutoPunish(false);
         }else {
 //            单独hitModel不能作为自动打压的标签 仅提供分数
-            if (sendReviewRiskResponse.getModelScore() > riskModelConfigDto.getAutoPunishThreshold()){
+            if (sendReviewRiskResponse.getRiskScore() >= riskModelConfigDto.getAutoPunishThreshold()){
                 riskModelResultDto.setHitAutoPunish(true);
             }
         }
-        riskModelResultDto.setFinish(riskModelConfigDto.getFinish());
         riskModelResultDto.setSendReviewRiskResponse(sendReviewRiskResponse);
         return riskModelResultDto;
     }
@@ -313,7 +341,9 @@ public class StreamlineServiceImpl implements StreamlineService {
                 if (ObjectUtil.isNull(pipelineAuditConfig)){
                     return null;
                 }
-                pipelineAuditConfigDto = JSON.parseObject(pipelineAuditConfig.getAuditConfig(), PipelineAuditConfigDto.class);
+//                alibaba json 支持enum
+                pipelineAuditConfigDto = com.alibaba.fastjson.JSONObject.parseObject(pipelineAuditConfig.getAuditConfig(), PipelineAuditConfigDto.class);
+
                 pipelineAuditConfigDto.setConfigKey(pipelineAuditConfig.getConfigKey());
                 pipelineAuditConfigDto.setId(pipelineAuditConfig.getId());
                 redisUtil.set(pipelineAuditConfigCacheKey, pipelineAuditConfigDto, PIPELINE_AUDIT_CONFIG_REDIS_EXPIRE_TIME, TimeUnit.SECONDS);

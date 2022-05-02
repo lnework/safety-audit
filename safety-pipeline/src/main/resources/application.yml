@@ -67,4 +67,4 @@ thrift:
 
 safety:
   pipeline:
-    kafka-topic: safety_audit_pipeline_x
+    kafka-topic: safety_audit_pipeline_z

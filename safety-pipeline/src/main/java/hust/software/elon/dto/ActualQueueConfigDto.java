@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @author elon
  * @date 2022/4/16 17:18
@@ -12,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActualQueueConfigDto {
+public class ActualQueueConfigDto implements Serializable {
     private Long id;
     private String name;
     private Integer weight;

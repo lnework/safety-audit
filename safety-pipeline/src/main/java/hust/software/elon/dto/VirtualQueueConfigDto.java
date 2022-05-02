@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +18,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VirtualQueueConfigDto {
+public class VirtualQueueConfigDto implements Serializable {
     private String virtualQueueId;
 //    tag和score都可以用 有时候我希望打不同的tag 但是都送到同一个虚拟队列
     private Set<String> tags;
