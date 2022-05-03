@@ -3,7 +3,6 @@ package hust.software.elon.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -11,11 +10,16 @@ import com.alibaba.fastjson.JSON;
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import com.esotericsoftware.yamlbeans.YamlWriter;
+import com.google.common.collect.ImmutableMap;
+import hust.software.elon.common.ErrorCode;
 import hust.software.elon.domain.PipelineAuditConfig;
+import hust.software.elon.domain.PipelineAuditLog;
 import hust.software.elon.dto.*;
 import hust.software.elon.domain.PipelineMessage;
 import hust.software.elon.enums.ShuntMode;
+import hust.software.elon.exception.SystemException;
 import hust.software.elon.mapper.PipelineAuditConfigMapper;
+import hust.software.elon.mapper.PipelineAuditLogMapper;
 import hust.software.elon.safety.people.domain.*;
 import hust.software.elon.safety.people.service.PeopleService;
 import hust.software.elon.safety.risk.domain.SendReviewRiskRequest;
@@ -49,6 +53,8 @@ import java.util.concurrent.TimeUnit;
 public class StreamlineServiceImpl implements StreamlineService {
 
     private final PipelineAuditConfigMapper pipelineAuditConfigMapper;
+    private final PipelineAuditLogMapper pipelineAuditLogMapper;
+
 
     private final RiskService.Iface riskService;
     private final PeopleService.Iface peopleService;
@@ -84,7 +90,7 @@ public class StreamlineServiceImpl implements StreamlineService {
         for(int i=0;i<RETRY_TIME;i++){
             pipelineResultDto = dealStreamline(pipelineMessage, safetyAuditConfigDto);
 //            保存审核结果
-            savePipelineResult(pipelineResultDto);
+            savePipelineResult(pipelineMessage, safetyAuditConfigDto, pipelineResultDto);
 //            没有发生异常
             if (ObjectUtil.isNull(pipelineResultDto.getException())){
                 return;
@@ -117,8 +123,6 @@ public class StreamlineServiceImpl implements StreamlineService {
         if (ObjectUtil.isNull(pipelineMessage) || ObjectUtil.isNull(safetyAuditConfigDto)){
             return pipelineResultDto;
         }
-        String dealId = generatePipelineDealId(pipelineMessage.getObjectId(), safetyAuditConfigDto.getId());
-        pipelineResultDto.setDealId(dealId);
         pipelineResultDto.setPipelineMessage(pipelineMessage);
 //        TODO 未设置feature
 //        设置pipelineId便于知道是以哪个版本进行操作的
@@ -238,13 +242,24 @@ public class StreamlineServiceImpl implements StreamlineService {
         return actualQueueConfigDto;
     }
 
-    private void savePipelineResult(PipelineResultDto pipelineResultDto){
+    private PipelineResultDto savePipelineResult(PipelineMessage pipelineMessage, PipelineAuditConfigDto pipelineAuditConfigDto, PipelineResultDto pipelineResultDto){
         log.info("savePipelineResult = {}", JSONUtil.toJsonStr(pipelineResultDto));
-    }
-
-    private String generatePipelineDealId(Long objectId, Long pipelineId){
-        String timePrefix = DateUtil.format(new Date(), "yyMMddHHmmss");
-        return timePrefix + objectId + pipelineId;
+        String pipelineResultJson = com.alibaba.fastjson.JSONObject.toJSONString(pipelineResultDto);
+        PipelineAuditLog pipelineAuditLog = new PipelineAuditLog();
+        pipelineAuditLog.setObjectId(pipelineMessage.getObjectId());
+        pipelineAuditLog.setObjectType(pipelineMessage.getObjectType().name());
+        pipelineAuditLog.setPipelineResult(pipelineResultJson);
+        pipelineAuditLog.setPipelineId(pipelineResultDto.getPipelineId());
+        pipelineAuditLog.setConfigKey(pipelineAuditConfigDto.getConfigKey());
+        pipelineAuditLog.setVersion(pipelineAuditConfigDto.getVersion());
+        pipelineAuditLog.setAuditTime(new Date());
+        int insertFlag = pipelineAuditLogMapper.insert(pipelineAuditLog);
+        if (insertFlag < 1){
+            throw new SystemException(ErrorCode.MYSQL_INSERT_ERROR,
+                    ImmutableMap.of("pipelineAuditLog", pipelineAuditLog));
+        }
+        pipelineResultDto.setId(pipelineAuditLog.getId());
+        return pipelineResultDto;
     }
 
 
@@ -343,7 +358,7 @@ public class StreamlineServiceImpl implements StreamlineService {
                 }
 //                alibaba json 支持enum
                 pipelineAuditConfigDto = com.alibaba.fastjson.JSONObject.parseObject(pipelineAuditConfig.getAuditConfig(), PipelineAuditConfigDto.class);
-
+                pipelineAuditConfigDto.setVersion(pipelineAuditConfig.getVersion());
                 pipelineAuditConfigDto.setConfigKey(pipelineAuditConfig.getConfigKey());
                 pipelineAuditConfigDto.setId(pipelineAuditConfig.getId());
                 redisUtil.set(pipelineAuditConfigCacheKey, pipelineAuditConfigDto, PIPELINE_AUDIT_CONFIG_REDIS_EXPIRE_TIME, TimeUnit.SECONDS);

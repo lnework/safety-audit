@@ -29,6 +29,7 @@ public class PipelineAuditConfigDto implements Serializable {
     private Long id;
     @JsonIgnore
     private String configKey;
+    private Integer version;
     //    限流
     private Integer qps;
     //    实际队列 当发生错误时 进入此队列
@@ -75,7 +76,7 @@ public class PipelineAuditConfigDto implements Serializable {
         List<RiskModelConfigDto> riskModelConfigDtos = Arrays.asList(riskModelConfigDto1, riskModelConfigDto2, riskModelConfigDto3);
         List<VirtualQueueConfigDto> virtualQueueConfigDtos = Arrays.asList(virtualQueueConfigDto1, virtualQueueConfigDto2);
         PipelineAuditConfigDto safetyAuditConfig = new PipelineAuditConfigDto(
-                1111111111L, "test_configkey", 1024, 11123456789L,
+                1111111111L,  "test_configkey", 1, 1024, 11123456789L,
                 riskModelConfigDtos, virtualQueueConfigDtos
         );
         return safetyAuditConfig;

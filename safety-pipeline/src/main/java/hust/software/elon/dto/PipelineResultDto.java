@@ -17,7 +17,7 @@ import java.util.Set;
 @Data
 public class PipelineResultDto {
 //    唯一id 用于查找pipeline审核结果
-    private String dealId;
+    private Long id;
 //    送审数据
     private PipelineMessage pipelineMessage;
 //    特征数据
