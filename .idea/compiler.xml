@@ -11,6 +11,7 @@
         <module name="safety-api" />
         <module name="safety-people" />
         <module name="safety-admin" />
+        <module name="safety-dispose" />
         <module name="safety-common" />
         <module name="safety-pipeline" />
         <module name="safety-risk" />
@@ -26,6 +27,7 @@
       <module name="safety-admin" options="-parameters" />
       <module name="safety-api" options="-parameters" />
       <module name="safety-common" options="-parameters" />
+      <module name="safety-dispose" options="-parameters" />
       <module name="safety-middle" options="-parameters" />
       <module name="safety-people" options="-parameters" />
       <module name="safety-pipeline" options="-parameters" />
