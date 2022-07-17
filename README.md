@@ -5,14 +5,30 @@
   包含感知送审、通用能接入机审模型的管道、人审队列、仲裁器、安全结论等模块。
 
 ### 服务
+技术栈：Java、Thrift、SpringBoot、MyBatis、Kafka、Canal、Zookeeper、Python、TensorFlow 等。
 
-###
+使用Zookeeper进行服务注册与发现，kafka、rpc对系统进行解耦与模块拆分，Guava、Redis进行应用级别限流，多级缓存等，分布式锁等。
+
+- safety-common 通用能力
+- safety-api thrift接口
+- safety-admin 管理员相关功能
+- safety-middle 音频、文件、用户等中台能力
+- safety-submit 感知送审服务 监听MQ分发到不同的审核管道中
+- safety-pipeline 机审管道，调用风险模型，将数据分发人审队列
+- safety-risk 算法模型结果包装成分风险套餐，标准请求与返回格式
+- safety-model 算法模型，使用python编写，使用rpc与risk服务交互
+- safety-people 人工审核服务
+- safety-dispose 仲裁器与安全结论判定服务
+
+
+### 系统数据流转
 ![数据流转图](img/数据流转图.png "数据流转图")
 
 ### 感知送审
 ![感知送审](img/感知送审.png "感知送审")
 
 音频服务负责将用户上传音频信息落表加重采样成可识别的音频，通过Canal监听音频数据库的binlog，通过MQ的方式分发分发出去，再由感知送审服务拉取信息。
+
 如：初审链路监听insert消息，复审链路监听update消息等
 
 ### 通用审核管道服务
@@ -20,11 +36,13 @@
 ![审核管道配置](img/审核管道配置.png "审核管道配置")
 
 将机器审核流程抽象，使用通用格式接入算法模型，并用可配置的方式来构建机审流程，根据模型结果按照策略通过/分发到人审虚拟队列中；
+
 人审虚拟队列可根据配置，进行分流/聚合数据到实际人审队列，便于解决队列量少、量多、或审核标准一致进行合并的问题，同时处罚回调可根据逻辑队列或实队列路由。
 
 ### 算法模型
 #### 敏感词识别
 ![敏感词](img/敏感词.png "敏感词")
+
 在内存中构建一颗字典树，将ASR内容匹配敏感词
 
 音频转ASR使用： https://github.com/nl8590687/ASRT_SpeechRecognition
