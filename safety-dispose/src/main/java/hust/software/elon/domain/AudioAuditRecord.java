@@ -22,7 +22,7 @@ public class AudioAuditRecord {
      *
      * @mbg.generated Sun May 08 15:28:19 CST 2022
      */
-    private Long obectId;
+    private Long objectId;
 
     /**
      *
@@ -92,8 +92,8 @@ public class AudioAuditRecord {
      *
      * @mbg.generated Sun May 08 15:28:19 CST 2022
      */
-    public Long getObectId() {
-        return obectId;
+    public Long getObjectId() {
+        return objectId;
     }
 
     /**
@@ -104,8 +104,8 @@ public class AudioAuditRecord {
      *
      * @mbg.generated Sun May 08 15:28:19 CST 2022
      */
-    public void setObectId(Long obectId) {
-        this.obectId = obectId;
+    public void setObjectId(Long objectId) {
+        this.objectId = objectId;
     }
 
     /**

@@ -3,18 +3,14 @@ package hust.software.elon.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.google.common.collect.ImmutableList;
 import hust.software.elon.domain.AudioAuditRecord;
-import hust.software.elon.dto.ArbiterNodeDto;
-import hust.software.elon.dto.AudioArbiterResultDto;
-import hust.software.elon.dto.AudioRecordDto;
+import hust.software.elon.dto.*;
 import hust.software.elon.enums.ArbiterFunctionEnum;
 import hust.software.elon.enums.AudioAuditSourceEnum;
 import hust.software.elon.mapper.AudioAuditRecordMapper;
 import hust.software.elon.service.AudioArbiterService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,13 +24,15 @@ public class AudioArbiterServiceImpl implements AudioArbiterService {
     private final AudioAuditRecordMapper recordMapper;
 
     @Override
-    public AudioRecordDto judgeRecord(AudioRecordDto audioRecordDto) {
-        AudioArbiterResultDto audioArbiterResultDto = judgeRecordDetail(audioRecordDto);
-        return audioArbiterResultDto.getJudgeResult();
+    public AudioRecordDto judgeRecord(RecordAbstract record) {
+        AudioRecordDto audioRecordDto = (AudioRecordDto) record;
+        ArbiterResultAbstract audioArbiterResultDto = judgeRecordDetail(audioRecordDto);
+        return (AudioRecordDto) audioArbiterResultDto.getJudgeResult();
     }
 
     @Override
-    public AudioArbiterResultDto judgeRecordDetail(AudioRecordDto audioRecordDto) {
+    public AudioArbiterResultDto judgeRecordDetail(RecordAbstract record) {
+        AudioRecordDto audioRecordDto = (AudioRecordDto) record;
         List<AudioRecordDto> audioRecordDtoList = getHistoryRecord(audioRecordDto.getObjectId());
 //        不管数据库里是有记录 此次结果都是幂等的
         audioRecordDtoList.add(audioRecordDto);

@@ -1,5 +1,6 @@
 package hust.software.elon.service;
 
+import hust.software.elon.dto.ArbiterResultAbstract;
 import hust.software.elon.dto.RecordAbstract;
 
 /**
@@ -8,4 +9,6 @@ import hust.software.elon.dto.RecordAbstract;
  */
 public interface ArbiterService {
     RecordAbstract judgeRecord(RecordAbstract record);
+
+    ArbiterResultAbstract judgeRecordDetail(RecordAbstract record);
 }

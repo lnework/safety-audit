@@ -1,77 +1,95 @@
-!hust.software.elon.dto.SafetyAuditConfigDto
+!hust.software.elon.dto.PipelineAuditConfigDto
 id: 1111111111
 configKey: test_configkey
-fatalQueueId: 2222222222
+fatalQueueId: 11123456789
 qps: 1024
 riskModelConfigDtoList: !java.util.Arrays$ArrayList
 - !hust.software.elon.dto.RiskModelConfigDto
    id: 123
-   autoPunishThreshold: 70.0
+   autoPunishThreshold: 0.0
+   extraJson: !com.google.common.collect.RegularImmutableMap
+      tableId: 1
+      highlight: true
    finish: false
    level: 1
-   modelKey: model_a
-   outputName: model_a_output_name
-   riskScore: 30.0
-   submitQueueThreshold: 50.0
+   modelKey: audio_sensitive_word_risk
+   outputName: audio_sensitive_word_risk
+   score: 30.0
+   submitQueueThreshold: 0.0
    tags: !java.util.Arrays$ArrayList
-   - tag_a_a
-   - tag_a_b
+   - audio_sensitive_word_risk_a
+   - audio_sensitive_word_risk_b
    thresholdDescription: "\u6a21\u578b\u5206"
-   token: model_a_token
+   token: audio_sensitive_word_risk
 - !hust.software.elon.dto.RiskModelConfigDto
    id: 234
-   autoPunishThreshold: 75.5
+   autoPunishThreshold: 0.0
+   extraJson: {}
    finish: false
    level: 1
-   modelKey: model_b
-   outputName: model_b_output_name
-   riskScore: 35.5
-   submitQueueThreshold: 55.5
+   modelKey: audio_repeat_risk
+   outputName: audio_repeat_risk
+   score: 35.5
+   submitQueueThreshold: 0.0
    tags: !java.util.Arrays$ArrayList
-   - tag_b_a
-   - tag_b_b
+   - audio_repeat_risk_a
+   - audio_repeat_risk_b
    thresholdDescription: "\u6a21\u578b\u5206"
-   token: model_b_token
+   token: audio_repeat_risk
+- !hust.software.elon.dto.RiskModelConfigDto
+   id: 234
+   autoPunishThreshold: 0.0
+   extraJson: {}
+   finish: false
+   level: 1
+   modelKey: audio_voiceprint_risk
+   outputName: audio_voiceprint_risk
+   score: 35.5
+   submitQueueThreshold: 0.0
+   tags: !java.util.Arrays$ArrayList
+   - audio_voiceprint_risk_a
+   - audio_voiceprint_risk_b
+   thresholdDescription: "\u6a21\u578b\u5206"
+   token: audio_voiceprint_risk
+version: 1
 virtualQueueConfigDtoList: !java.util.Arrays$ArrayList
 - !hust.software.elon.dto.VirtualQueueConfigDto
-   id: 333333333
-   name: "\u865a\u62df\u961f\u5217A"
    actualQueueConfigDtoList: !com.google.common.collect.RegularImmutableList
    - !hust.software.elon.dto.ActualQueueConfigDto
-      id: 3333333333
+      id: 11123456790
       name: "\u5b9e\u961f\u5217A"
       createType: ForceCreate
       weight: 50
    - !hust.software.elon.dto.ActualQueueConfigDto
-      id: 4444444444
+      id: 11123456790
       name: "\u5b9e\u961f\u5217B"
       createType: ForceCreate
       weight: 50
-   objectData: !com.google.common.collect.SingletonImmutableBiMap
-      "": ""
+   objectData: {}
    riskScore: 50.0
    shuntMode: WEIGHT_SHUNT
    tags: !com.google.common.collect.RegularImmutableSet
-   - tag_a_a
-   - tag_a_b
+   - audio_sensitive_word_risk_a
+   - audio_repeat_risk_a
+   - audio_voiceprint_risk_a
+   virtualQueueId: "\u865a\u62df\u961f\u5217A"
 - !hust.software.elon.dto.VirtualQueueConfigDto
-   id: 444444444
-   name: "\u865a\u62df\u961f\u5217A"
    actualQueueConfigDtoList: !com.google.common.collect.RegularImmutableList
    - !hust.software.elon.dto.ActualQueueConfigDto
-      id: 5555555555
+      id: 11123456790
       name: "\u5b9e\u961f\u5217C"
       createType: ForceCreate
       weight: 50
    - !hust.software.elon.dto.ActualQueueConfigDto
-      id: 6666666666
+      id: 11123456790
       name: "\u5b9e\u961f\u5217D"
       createType: ForceCreate
       weight: 50
-   objectData: !com.google.common.collect.SingletonImmutableBiMap
-      "": ""
+   objectData: {}
    riskScore: 50.0
    shuntMode: WEIGHT_SHUNT
    tags: !com.google.common.collect.RegularImmutableSet
-   - tag_b_a
-   - tag_b_b
+   - audio_sensitive_word_risk_b
+   - audio_repeat_risk_b
+   - audio_voiceprint_risk_b
+   virtualQueueId: "\u865a\u62df\u961f\u5217B"

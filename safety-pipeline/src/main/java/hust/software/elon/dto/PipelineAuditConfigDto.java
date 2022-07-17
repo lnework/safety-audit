@@ -2,6 +2,7 @@ package hust.software.elon.dto;
 
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.esotericsoftware.yamlbeans.YamlWriter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -12,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -82,11 +85,14 @@ public class PipelineAuditConfigDto implements Serializable {
         return safetyAuditConfig;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         PipelineAuditConfigDto pipelineAuditConfigDto = getTestConfig();
         String s = JSONObject.toJSONString(pipelineAuditConfigDto);
         System.out.println(s);
         PipelineAuditConfigDto pipelineAuditConfigDto1 = JSONObject.parseObject(s, PipelineAuditConfigDto.class);
         System.out.println(pipelineAuditConfigDto1);
+        YamlWriter yamlWriter = new YamlWriter(new FileWriter("test-pipeline.yml"));
+        yamlWriter.write(pipelineAuditConfigDto);
+        yamlWriter.close();
     }
 }
